@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RecipeHub - Кулинарная социальная сеть</title>
+        <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3565/3565418.png">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="logo">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3565/3565418.png" alt="RecipeHub Logo" class="logo-img">
+                    ChefShare
+                </div>
+                <div class="nav-icon" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </div>
+                <div class="search-bar">
+                    <input type="text" placeholder="Поиск рецептов...">
+                    <button><i class="fas fa-search"></i></button>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn active" title="Главная"><i class="fas fa-home"></i></button>
+                    <button class="nav-btn" title="Добавить рецепт"><i class="fas fa-plus-square"></i></button>
+                    <button class="nav-btn notifications-button" title="Уведомления"><i class="fas fa-bell"></i></button>
+                    <a href="/profile" class="nav-btn" title="Профиль">
+                        <img src="https://cdn-icons-png.flaticon.com/512/1946/1946429.png" alt="Profile" class="profile-icon">
+                    </a>
+                </div>\
+            </div>
+            
+            <!-- Mobile Menu -->
+            <div class="mobile-menu">
+                <div class="mobile-menu-header">
+                    <span class="mobile-menu-close" onclick="toggleMobileMenu()">
+                        <i class="fas fa-times"></i>
+                    </span>
+                </div>
+                <ul class="mobile-menu-items">
+                    <li><a href="#"><i class="fas fa-home"></i> Главная</a></li>
+                    <li><a href="#"><i class="fas fa-plus-square"></i> Добавить рецепт</a></li>
+                    <li><button class="notifications-button"><i class="fas fa-bell"></i> Уведомления</button></li>
+                    <li><a href="profile.html"><i class="fas fa-user"></i> Профиль</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="content-container">
+            <div class="sidebar">
+                <h3>Категории</h3>
+                <ul class="categories">
+                    <li><a href="#" class="active"><i class="fas fa-star"></i> Избранное</a></li>
+                    <li><a href="#"><i class="fas fa-fire"></i> Популярное</a></li>
+                    <li><a href="#"><i class="fas fa-clock"></i> Новые рецепты</a></li>
+                    <li><a href="#"><i class="fas fa-users"></i> Мои подписки</a></li>
+                    <li><a href="#"><i class="fas fa-utensils"></i> Все рецепты</a></li>
+                </ul>
+                
+                <h3><i class="fas fa-heart"></i> Понравившиеся повара</h3>
+                <div class="favorite-chefs">
+                    <!-- Динамически заполняется через JavaScript -->
+                </div>
+            </div>
+
+            <div class="feed">
+                <div class="stories-container">
+                    <!-- Остальные истории добавляются динамически -->
+                </div>
+
+                <div class="posts-container">
+                    <!-- Посты добавляются динамически через JavaScript -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Модальное окно для создания рецепта -->
+    <div class="modal" id="createRecipeModal">
+        <div class="modal-content">
+            <span class="close"><i class="fas fa-times"></i></span>
+            <h2><i class="fas fa-utensils"></i> Создать новый рецепт</h2>
+            <form id="recipeForm">
+                <input type="text" placeholder="Название рецепта" required>
+                <textarea placeholder="Описание рецепта" required></textarea>
+                <div class="ingredients-section">
+                    <h3><i class="fas fa-list"></i> Ингредиенты</h3>
+                    <div class="ingredients-list">
+                        <div class="ingredient-item">
+                            <input type="text" placeholder="Ингредиент">
+                            <input type="text" placeholder="Количество">
+                            <button type="button" class="remove-ingredient"><i class="fas fa-minus"></i></button>
+                        </div>
+                    </div>
+                    <button type="button" class="add-ingredient"><i class="fas fa-plus"></i> Добавить ингредиент</button>
+                </div>
+                <div class="steps-section">
+                    <h3><i class="fas fa-tasks"></i> Шаги приготовления</h3>
+                    <div class="steps-list">
+                        <div class="step-item">
+                            <textarea placeholder="Опишите шаг"></textarea>
+                            <button type="button" class="remove-step"><i class="fas fa-minus"></i></button>
+                        </div>
+                    </div>
+                    <button type="button" class="add-step"><i class="fas fa-plus"></i> Добавить шаг</button>
+                </div>
+                <div class="image-upload">
+                    <label for="recipeImage">
+                        <i class="fas fa-camera"></i> Добавить фото
+                    </label>
+                    <input type="file" id="recipeImage" accept="image/*">
+                    <div class="image-preview"></div>
+                </div>
+                <button type="submit" class="submit-recipe">
+                    <i class="fas fa-paper-plane"></i> Опубликовать рецепт
+                </button>
+            </form>
+        </div>
+    </div>
+
+<!-- Notifications Container -->
+<div class="notifications-container">
+    <div class="notifications-content">
+        <div class="notifications-header">
+            <h2><i class="fas fa-bell"></i> Уведомления</h2>
+            <span class="close"><i class="fas fa-times"></i></span>
+        </div>
+        <div class="notifications-list">
+            <!-- Notification items with AOS animations -->
+            <div class="notification-item" data-aos="fade-up">
+                <img src="https://via.placeholder.com/40" alt="User Avatar" class="notification-avatar">
+                <div class="notification-info">
+                    <p><strong>Анна</strong> оценила ваш рецепт "Домашняя пицца"</p>
+                    <span class="notification-time">2 часа назад</span>
+                </div>
+            </div>
+            <div class="notification-item" data-aos="fade-up" data-aos-delay="100">
+                <img src="https://via.placeholder.com/40" alt="User Avatar" class="notification-avatar">
+                <div class="notification-info">
+                    <p><strong>Михаил</strong> прокомментировал ваш рецепт</p>
+                    <span class="notification-time">5 часов назад</span>
+                </div>
+            </div>
+            <div class="notification-item" data-aos="fade-up" data-aos-delay="200">
+                <img src="https://via.placeholder.com/40" alt="User Avatar" class="notification-avatar">
+                <div class="notification-info">
+                    <p><strong>Елена</strong> подписалась на ваши обновления</p>
+                    <span class="notification-time">1 день назад</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script src="js/script.js"></script>
+</body>
+</html>

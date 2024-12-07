@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RecipeHub - Профиль</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/profile-styles.css">
+    <link rel="stylesheet" href="/css/root.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3565/3565418.png">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="logo">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3565/3565418.png" alt="RecipeHub Logo" class="logo-img">
+                    ChefShare
+                </div>
+                <div class="nav-icon">
+                    <i class="fas fa-bars"></i>
+                </div>
+                <div class="search-bar">
+                    <input type="text" placeholder="Поиск рецептов...">
+                    <button><i class="fas fa-search"></i></button>
+                </div>
+                <div class="nav-buttons">
+                    <a href="/" class="nav-btn" title="Главная"><i class="fas fa-home"></i></a>
+                    <button class="nav-btn" title="Добавить рецепт"><i class="fas fa-plus-square"></i></button>
+                    <button class="nav-btn notifications-button" title="Уведомления"><i class="fas fa-bell"></i></button>
+                    <a href="/profile" class="nav-btn active" title="Профиль">
+                        <img src="https://cdn-icons-png.flaticon.com/512/1946/1946429.png" alt="Profile" class="profile-icon">
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Mobile Menu -->
+            <div class="mobile-menu">
+                <a href="index.html"><i class="fas fa-home"></i> Главная</a>
+                <a href="#" ><i class="fas fa-search"></i> Поиск</a>
+                <button class="notifications-button"><i class="fas fa-bell"></i> Уведомления</button>
+                <a href="profile.html" class="active"><i class="fas fa-user"></i> Профиль</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Notifications Container -->
+    <div class="notifications-container">
+        <div class="notifications-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-bell"></i> Уведомления</h2>
+                <button class="close-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="notifications-list">
+                <!-- Notification items with AOS animations -->
+                <div class="notification-item" data-aos="fade-up">
+                    <img src="https://via.placeholder.com/40" alt="User Avatar" class="notification-avatar">
+                    <div class="notification-info">
+                        <p><strong>Анна</strong> оценила ваш рецепт "Домашняя пицца"</p>
+                        <span class="notification-time">2 часа назад</span>
+                    </div>
+                </div>
+                <div class="notification-item" data-aos="fade-up" data-aos-delay="100">
+                    <img src="https://via.placeholder.com/40" alt="User Avatar" class="notification-avatar">
+                    <div class="notification-info">
+                        <p><strong>Михаил</strong> прокомментировал ваш рецепт</p>
+                        <span class="notification-time">5 часов назад</span>
+                    </div>
+                </div>
+                <div class="notification-item" data-aos="fade-up" data-aos-delay="200">
+                    <img src="https://via.placeholder.com/40" alt="User Avatar" class="notification-avatar">
+                    <div class="notification-info">
+                        <p><strong>Елена</strong> подписалась на ваши обновления</p>
+                        <span class="notification-time">1 день назад</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="profile-main">
+        <div class="profile-header">
+            <div class="profile-cover">
+                <button class="edit-cover"><i class="fas fa-camera"></i> Изменить обложку</button>
+            </div>
+            <div class="profile-info">
+                <div class="profile-avatar">
+                    <img src="https://cdn-icons-png.flaticon.com/512/1946/1946429.png" alt="Profile">
+                    <button class="edit-avatar"><i class="fas fa-camera"></i></button>
+                </div>
+                <div class="profile-details">
+                    <div class="profile-name">
+                        <h1>Иван Иванов</h1>
+                        <button class="become-chef-btn" id="becomeChefBtn"><i class="fas fa-utensils"></i> Стать поваром</button>
+                    </div>
+                    <div class="profile-bio">
+                        Любитель готовить и делиться рецептами. Специализируюсь на итальянской кухне.
+                    </div>
+                    <div class="profile-stats">
+                        <div class="stat">
+                            <span class="stat-value">128</span>
+                            <span class="stat-label">Рецептов</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">1.2K</span>
+                            <span class="stat-label">Подписчиков</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">450</span>
+                            <span class="stat-label">Подписок</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-content">
+            <div class="profile-nav">
+                <button class="active"><i class="fas fa-th"></i> Мои рецепты</button>
+                <button><i class="fas fa-bookmark"></i> Сохраненные</button>
+                <button><i class="fas fa-heart"></i> Понравившиеся</button>
+                <button><i class="fas fa-cog"></i> Настройки</button>
+            </div>
+
+            <div class="profile-grid" id="recipesGrid">
+                <!-- Рецепты добавляются динамически -->
+            </div>
+
+            <!-- Секция настроек -->
+            <div class="settings-section" id="settingsSection" style="display: none;">
+                <div class="settings-container">
+                    <div class="settings-group">
+                        <h3><i class="fas fa-user-shield"></i> Аккаунт</h3>
+                        <div class="settings-item">
+                            <label>Редактировать профиль</label>
+                            <button class="settings-btn"><i class="fas fa-edit"></i></button>
+                        </div>
+                        <div class="settings-item">
+                            <label>Изменить пароль</label>
+                            <button class="settings-btn"><i class="fas fa-key"></i> Изменить</button>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3><i class="fas fa-bell"></i> Уведомления</h3>
+                        <div class="settings-item">
+                            <label>Новые подписчики</label>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="settings-item">
+                            <label>Комментарии к рецептам</label>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="settings-item">
+                            <label>Лайки рецептов</label>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div class="settings-item">
+                            <label>Email-уведомления</label>
+                            <label class="switch">
+                                <input type="checkbox">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3><i class="fas fa-globe"></i> Язык</h3>
+                        <div class="settings-item">
+                            <label>Язык интерфейса</label>
+                            <select class="settings-select" id="languageSelect">
+                                <option value="ru">Русский</option>
+                                <option value="en">English</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3><i class="fas fa-palette"></i> Внешний вид</h3>
+                        <div class="settings-item">
+                            <label>Темная тема</label>
+                            <label class="switch">
+                                <input type="checkbox" id="darkThemeToggle">
+                                <span class="slider round"></span>
+                            </label>
+      
+                    </div>
+
+                    <div class="settings-group danger-zone">
+                        <h3><i class="fas fa-exclamation-triangle"></i> Опасная зона</h3>
+                        <div class="settings-item">
+                            <label>Удалить аккаунт</label>
+                            <button class="settings-btn danger"><i class="fas fa-trash"></i> Удалить</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </main>
+
+    <!-- Модальное окно редактирования профиля -->
+    <div class="modal" id="editProfileModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-user-edit"></i> Редактировать профиль</h2>
+            </div>
+            <div class="modal-body">
+                <form id="editProfileForm">
+                    <div class="form-group">
+                        <label>Имя</label>
+                        <input type="text" value="Иван Иванов" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" value="ivan@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Телефон</label>
+                        <input type="tel" value="+7 (999) 123-45-67">
+                    </div>
+                    <div class="form-group">
+                        <label>Специализация</label>
+                        <input type="text" value="Итальянская, Французская кухня">
+                    </div>
+                    <div class="form-group">
+                        <label>Опыт готовки</label>
+                        <select>
+                            <option value="beginner">Начинающий</option>
+                            <option value="intermediate">Средний</option>
+                            <option value="advanced" selected>Продвинутый</option>
+                            <option value="professional">Профессионал</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>О себе</label>
+                        <textarea rows="4" placeholder="Расскажите о своем кулинарном опыте...">Шеф-повар с 10-летним опытом. Специализируюсь на итальянской и французской кухне. Люблю экспериментировать с новыми вкусами.</textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="cancel-btn">Отмена</button>
+                <button type="submit" class="save-btn">Сохранить изменения</button>
+            </div>
+        </div>
+    </div>
+
+<!-- Модальное окно изменения обложки -->
+<div class="modal" id="changeCoverModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2><i class="fas fa-image"></i> Изменить обложку</h2>
+            <button class="close-btn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="cover-options">
+                <div class="cover-option">
+                    <h3><i class="fas fa-upload"></i> Загрузить изображение</h3>
+                    <input type="file" id="coverImageInput" accept="image/*" style="display: none;">
+                    <button class="upload-btn">
+                        Выбрать файл
+                    </button>
+                </div>
+                <div class="cover-option">
+                    <h3><i class="fas fa-palette"></i> Случайный градиент</h3>
+                    <div class="gradient-previews">
+                        <div class="gradient-preview"></div>
+                        <div class="gradient-preview"></div>
+                        <div class="gradient-preview"></div>
+                    </div>
+                    <button class="generate-gradient-btn">Сгенерировать новые</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Модальное окно соглашения для поваров -->
+<div class="modal" id="chefAgreementModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2><i class="fas fa-utensils"></i> Стать поваром на ChefShare</h2>
+            <button class="close-btn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="agreement-section">
+                <h3>Требования к повару:</h3>
+                <ul>
+                    <li><i class="fas fa-check"></i> Подтвердить email адрес</li>
+                    <li><i class="fas fa-check"></i> Подтвердить номер телефона</li>
+                </ul>
+            </div>
+            <div class="agreement-section">
+                <h3>Преимущества статуса повара:</h3>
+                <ul>
+                    <li><i class="fas fa-star"></i> Специальный значок шеф-повара</li>
+                    <li><i class="fas fa-crown"></i> Возможность создавать платные рецепты</li>
+                    <li><i class="fas fa-tools"></i> Доступ к профессиональным инструментам</li>
+                    <li><i class="fas fa-chart-line"></i> Расширенная аналитика профиля</li>
+                </ul>
+            </div>
+            <div class="agreement-section">
+                <h3>Обязательства повара:</h3>
+                <ul>
+                    <li><i class="fas fa-exclamation-circle"></i> Публиковать только оригинальные рецепты</li>
+                    <li><i class="fas fa-exclamation-circle"></i> Отвечать на комментарии пользователей</li>
+                    <li><i class="fas fa-exclamation-circle"></i> Поддерживать высокое качество контента</li>
+                    <li><i class="fas fa-exclamation-circle"></i> Соблюдать правила сообщества</li>
+                </ul>
+            </div>
+            <div class="agreement-checkbox">
+                <label>
+                    <input type="checkbox" id="chefAgreementCheckbox">
+                    Я согласен с условиями и обязуюсь их соблюдать
+                </label>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="cancel-btn">Отмена</button>
+            <button class="save-btn" id="confirmChefBtn" disabled>Подтвердить</button>
+        </div>
+    </div>
+</div>
+<!-- Модальное окно изменения аватара -->
+<div class="modal" id="changeAvatarModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2><i class="fas fa-user-circle"></i> Изменить фото профиля</h2>
+            <button class="close-btn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="avatar-upload">
+                <div class="avatar-preview">
+                    <img id="avatarPreview" src="https://cdn-icons-png.flaticon.com/512/1946/1946429.png" alt="Preview">
+                </div>
+                <div class="avatar-actions">
+                    <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+                    <button class="upload-btn">
+                        <i class="fas fa-upload"></i> Выбрать фото
+                    </button>
+                    <button class="reset-btn">
+                        <i class="fas fa-undo"></i> Сбросить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="notifications-container" class="notifications-fixed-container"></div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script src="/js/notification-manager.js"></script>
+    <script src="/js/theme-manager.js"></script>
+    <script src="/js/profile.js"></script>
+</body>
+</html>

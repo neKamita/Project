@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChefShare - Вход</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/root.css">
+    <link rel="stylesheet" href="/css/auth.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3565/3565418.png">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <img src="https://cdn-icons-png.flaticon.com/512/3565/3565418.png" alt="ChefShare Logo">
+            <h1>Вход в ChefShare</h1>
+            <p>Добро пожаловать обратно!</p>
+        </div>
+        
+        <form class="auth-form" action="/auth/signin" method="POST">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Пароль</label>
+                <input type="password" id="password" name="password" class="form-control" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Войти</button>
+        </form>
+        
+        <div class="auth-links">
+            <a href="/auth/forgot-password">Забыли пароль?</a>
+            <p>Нет аккаунта? <a href="/auth/signup">Зарегистрироваться</a></p>
+        </div>
+        
+        <div class="social-auth">
+            <p>или войдите через</p>
+            <div class="social-buttons">
+                <a href="#" class="social-button" data-provider="Google">
+                    <i class="fab fa-google"></i>
+                </a>
+                <a href="#" class="social-button" data-provider="Facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="#" class="social-button" data-provider="Github">
+                    <i class="fab fa-github"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="toast-container"></div>
+    <div class="loading-spinner"></div>
+    <script src="/js/theme-manager.js"></script>
+    <script>
+        // Инициализируем тему сразу после загрузки скрипта
+        ThemeManager.init();
+    </script>
+    <script src="/js/notification-manager.js"></script>
+    <script src="/js/loading-spinner.js"></script>
+    <script src="/js/form-validator.js"></script>
+    <script src="/js/auth.js"></script>
+</body>
+</html>

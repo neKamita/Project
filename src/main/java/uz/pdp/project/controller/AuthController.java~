@@ -1,0 +1,26 @@
+package uz.pdp.project.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Controller
+@RequestMapping("/auth")
+public class AuthController {
+
+    @GetMapping("/signin")
+    public String getSignInPage() {
+        return "signin";
+    }
+
+    @GetMapping("/signup")
+    public String getSignUpPage() {
+        return "signup";
+    }
+
+    @GetMapping("/forgot-password")
+    public String getForgotPasswordPage() {
+        return "forgot-password";
+    }
+}

@@ -1,0 +1,1772 @@
+/* Profile styles */
+:root {
+    --primary-color: #ff4757;
+    --secondary-color: #2f3542;
+    --background-color: #f1f2f6;
+    --text-color: #2f3542;
+    --border-color: #dfe4ea;
+    --hover-color: #ff6b81;
+    /* Светлая тема */
+    --bg-primary: #f5f5f5;
+    --bg-secondary: #ffffff;
+    --text-primary: #333333;
+    --text-secondary: #666666;
+    --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --hover-bg: #f0f0f0;
+}
+
+/* Тёмная тема */
+body.dark-theme {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --text-primary: #ffffff;
+    --text-secondary: #b3b3b3;
+    --border-color: #404040;
+    --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --hover-bg: #363636;
+}
+
+/* Основные стили профиля */
+.profile-main {
+    max-width: 1200px;
+    margin: 80px auto 0;
+    padding: 0 1rem;
+    background-color: var(--bg-primary);
+}
+
+/* Шапка профиля */
+.profile-header {
+    background: var(--bg-secondary);
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.profile-cover {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    background: linear-gradient(135deg, 
+        rgba(76, 110, 245, 0.4) 0%,
+        rgba(147, 51, 234, 0.4) 50%,
+        rgba(236, 72, 153, 0.4) 100%
+    );
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    border-radius: 12px 12px 0 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    box-shadow: inset 0 0 100px rgba(255, 255, 255, 0.1);
+}
+
+.profile-cover::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    z-index: 1;
+}
+
+.profile-cover::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(
+        circle at center,
+        rgba(255, 255, 255, 0.1) 0%,
+        transparent 60%
+    );
+    animation: shimmer 15s infinite linear;
+    z-index: 1;
+}
+
+@keyframes shimmer {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Когда есть фоновое изображение, скрываем эффекты */
+.profile-cover[style*="background-image"] {
+    background: none;
+}
+
+.profile-cover[style*="background-image"]::before,
+.profile-cover[style*="background-image"]::after {
+    display: none;
+}
+
+.edit-cover {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(4px);
+    z-index: 99!important;
+}
+
+.edit-cover:hover {
+    background: rgba(0, 0, 0, 0.85);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.edit-cover i {
+    font-size: 16px;
+}
+
+.profile-info {
+    position: relative;
+    margin-top: -80px;
+    padding: 0 30px;
+    z-index: 5;
+}
+
+/* Стили для аватара профиля */
+.profile-avatar {
+    position: relative;
+    margin-top: -75px;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border: 4px solid var(--bg-secondary);
+    transition: transform 0.3s ease;
+}
+
+.profile-avatar:hover {
+    transform: scale(1.02);
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.edit-avatar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    padding: 8px 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    backdrop-filter: blur(4px);
+    transition: all 0.3s ease;
+    transform: translateY(100%);
+}
+
+.profile-avatar:hover .edit-avatar {
+    transform: translateY(0);
+}
+
+/* Стили для тёмной темы */
+body.dark-theme .profile-avatar {
+    border-color: var(--bg-secondary);
+}
+
+body.dark-theme .edit-avatar {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+body.dark-theme .edit-avatar:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+body.dark-theme .edit-avatar i {
+    color: white !important;
+}
+
+.profile-details {
+    margin-top: 1.5rem;
+}
+
+.profile-name {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.profile-name h1 {
+    font-size: 2rem;
+    color: var(--secondary-color);
+    margin: 0;
+}
+
+.edit-profile-btn,
+.become-chef-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    margin: 5px;
+}
+
+.edit-profile-btn {
+    background-color: #2196F3;
+    color: white;
+}
+
+.edit-profile-btn:hover {
+    background-color: #1976D2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.become-chef-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.become-chef-btn:hover {
+    background-color: #388E3C;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.chef-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
+    background-color: #28a745;
+    color: white;
+    border-radius: 12px;
+    font-size: 12px;
+    margin-left: 10px;
+}
+
+.chef-badge i {
+    margin-right: 4px;
+}
+
+body.dark-theme .chef-badge {
+    background-color: #2d5a3a;
+}
+
+.edit-profile {
+    background: none;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.edit-profile:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.profile-stats {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    margin: 1.5rem 0;
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--secondary-color);
+    display: block;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.profile-bio {
+    color: #666;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* Навигация профиля */
+.profile-nav {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.profile-nav button {
+    background: none;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--secondary-color);
+    transition: all 0.3s ease;
+}
+
+.profile-nav button:hover {
+    background: var(--background-color);
+}
+
+.profile-nav button.active {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* Стили для навигации профиля в тёмной теме */
+body.dark-theme .profile-nav button {
+    color: var(--text-primary) !important;
+}
+
+body.dark-theme .profile-nav button:hover {
+    background-color: var(--hover-bg);
+}
+
+body.dark-theme .profile-nav button.active {
+    color: var(--primary-color) !important;
+    background-color: var(--hover-bg);
+}
+
+/* Сетка рецептов */
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.profile-grid.compact-view {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.profile-grid.compact-view .recipe-card {
+    margin-bottom: 10px;
+}
+
+.profile-grid.compact-view .recipe-image {
+    height: 120px;
+}
+
+.profile-grid.compact-view .recipe-content {
+    padding: 8px;
+}
+
+.profile-grid.compact-view .recipe-title {
+    font-size: 0.9em;
+    margin-bottom: 5px;
+}
+
+.profile-grid.compact-view .recipe-stats {
+    font-size: 0.8em;
+}
+
+.profile-grid.compact-view .recipe-description {
+    display: none;
+}
+
+.recipe-card {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+}
+
+.recipe-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.recipe-image {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+}
+
+.recipe-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.recipe-card:hover .recipe-image img {
+    transform: scale(1.05);
+}
+
+.recipe-overlay {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 8px;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.recipe-card:hover .recipe-overlay {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.recipe-overlay button {
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.recipe-overlay button:hover {
+    background: #fff;
+    transform: scale(1.1);
+}
+
+.recipe-overlay .edit-recipe {
+    color: #2196F3;
+}
+
+.recipe-overlay .delete-recipe {
+    color: #f44336;
+}
+
+.recipe-content {
+    padding: 20px;
+}
+
+.recipe-title {
+    font-size: 1.2rem;
+    color: var(--text-primary);
+    margin: 0 0 10px 0;
+}
+
+.recipe-description {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.recipe-stats {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 20px;
+    padding: 12px 0;
+    margin-top: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+.stat-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+}
+
+.stat-btn:hover {
+    background-color: var(--hover-bg);
+    color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.stat-btn i {
+    font-size: 1.1rem;
+}
+
+.stat-btn span {
+    font-weight: 500;
+}
+
+/* Animation for like button */
+.recipe-stats .stat-btn[onclick*="toggleLike"] {
+    position: relative;
+    overflow: hidden;
+}
+
+.recipe-stats .stat-btn[onclick*="toggleLike"]:active i {
+    animation: heartBeat 0.3s ease;
+}
+
+@keyframes heartBeat {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+/* Dark theme adjustments */
+body.dark-theme .recipe-stats {
+    border-top-color: var(--border-color);
+}
+
+body.dark-theme .recipe-stats .stat-btn {
+    color: var(--text-secondary);
+}
+
+body.dark-theme .recipe-stats .stat-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--primary-color);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .recipe-stats {
+        justify-content: space-around;
+        padding: 10px 0;
+    }
+
+    .recipe-stats .stat-btn {
+        padding: 4px 8px;
+    }
+}
+
+/* Темная тема для карточек рецептов */
+body.dark-theme .recipe-card {
+    background: var(--bg-secondary);
+}
+
+body.dark-theme .recipe-overlay button {
+    background: rgba(45, 45, 45, 0.9);
+    color: #fff;
+}
+
+body.dark-theme .recipe-overlay button:hover {
+    background: var(--bg-secondary);
+}
+
+body.dark-theme .stat-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Сетка рецептов */
+#recipesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 20px 0;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    .recipe-card {
+        margin: 0 10px;
+    }
+    
+    .recipe-stats {
+        justify-content: space-around;
+    }
+    
+    .stat-btn {
+        padding: 6px 10px;
+    }
+}
+
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+/* Стили для настроек */
+.settings-section {
+    background: var(--bg-secondary);
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 2rem;
+}
+
+.settings-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: var(--bg-secondary);
+    box-shadow: var(--card-shadow);
+    border-radius: 10px;
+    padding: 2rem;
+}
+
+.settings-group {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.settings-group:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.settings-group h3 {
+    color: var(--secondary-color);
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.settings-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0.5rem 0;
+    color: var(--text-primary);
+}
+
+.settings-btn {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.settings-btn:hover {
+    background-color: var(--hover-bg);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.settings-btn.danger {
+    border-color: #ff4757;
+    color: #ff4757;
+}
+
+.settings-btn.danger:hover {
+    background: #ff3344;
+    box-shadow: 0 4px 8px rgba(255,71,87,0.3);
+}
+
+.settings-select {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.settings-select:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--text-secondary);
+}
+
+/* Switch Toggle Styles */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+    margin: 0;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: var(--primary-color);
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px var(--primary-color);
+}
+
+input:checked + .slider:before {
+    transform: translateX(24px);
+}
+
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+/* Adjust switch size for mobile */
+@media (max-width: 576px) {
+    .switch {
+        width: 50px;
+        height: 28px;
+    }
+    
+    .slider:before {
+        height: 20px;
+        width: 20px;
+    }
+    
+    input:checked + .slider:before {
+        transform: translateX(22px);
+    }
+}
+
+/* Опасная зона */
+.settings-group.danger-zone {
+    background-color: rgba(220, 53, 69, 0.1);
+    border: 1px solid #dc3545;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 30px;
+}
+
+/* Темная тема для danger zone */
+[data-theme="dark"] .settings-group.danger-zone {
+    background-color: rgba(220, 53, 69, 0.15);
+    border-color: #dc3545;
+}
+
+[data-theme="dark"] .settings-group.danger-zone h3,
+[data-theme="dark"] .settings-group.danger-zone p {
+    color: #fff !important;
+}
+
+[data-theme="dark"] .settings-group.danger-zone .settings-item {
+    color: #fff;
+}
+
+.settings-group.danger-zone h3 {
+    color: #dc3545;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.settings-group.danger-zone p {
+    color: #666;
+    margin-bottom: 15px;
+    font-size: 0.9em;
+    line-height: 1.5;
+}
+
+.settings-group.danger-zone .warning-icon {
+    color: #dc3545;
+    margin-right: 8px;
+}
+
+/* Адаптивный дизайн для настроек */
+@media (max-width: 768px) {
+    .settings-section {
+        padding: 1rem;
+    }
+
+    .settings-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .settings-select {
+        width: 100%;
+    }
+}
+
+/* Notifications */
+.notifications-fixed-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 99999;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.notification {
+    background: white;
+    color: #333;
+    padding: 12px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    transform: translateX(120%);
+    transition: transform 0.3s ease;
+    pointer-events: all;
+    max-width: 300px;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification i {
+    font-size: 1.2rem;
+}
+
+/* Типы уведомлений */
+.notification.success {
+    background: #4CAF50;
+    color: white;
+}
+
+.notification.error {
+    background: #f44336;
+    color: white;
+}
+
+.notification.warning {
+    background: #ff9800;
+    color: white;
+}
+
+.notification.info {
+    background: #2196F3;
+    color: white;
+}
+
+/* Dark theme adjustments */
+body.dark-theme .notification {
+    background: #333;
+    color: white;
+}
+
+/* Mobile responsiveness for notifications */
+@media (max-width: 768px) {
+    .notifications-fixed-container {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+    }
+
+    .notification {
+        padding: 10px 20px;
+        font-size: 0.85rem;
+    }
+}
+
+/* Стили для модального окна изменения обложки */
+.cover-options {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.option-group {
+    background: var(--bg-secondary);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.option-group h3 {
+    margin-bottom: 15px;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+}
+
+.upload-area {
+    border: 2px dashed var(--border-color);
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.upload-area:hover {
+    border-color: var(--primary-color);
+    background: rgba(var(--primary-rgb), 0.1);
+}
+
+.upload-area i {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.upload-area p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.gradients-grid {
+    display: grid;
+    gap: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+
+.gradient-preview {
+    aspect-ratio: 16/9;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+    padding: 15px;
+}
+
+.gradient-preview:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.gradient-preview i {
+    font-size: 1.5rem;
+}
+
+.gradient-preview span {
+    font-size: 0.9rem;
+}
+
+/* Стили для drag & drop */
+.upload-area.dragover {
+    border-color: var(--primary-color);
+    background: rgba(var(--primary-rgb), 0.1);
+}
+
+/* Модальное окно */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.modal.active {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 600px;
+    width: 90%;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.modal-header h2 i {
+    color: var(--primary-color);
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 5px;
+    transition: color 0.3s ease;
+}
+
+.close-btn:hover {
+    color: var(--primary-color);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    color: #999;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    background: #2d2d2d;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 12px;
+    color: #fff;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #ff4757;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 71, 87, 0.2);
+}
+
+.form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.modal-footer {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #333;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.modal-footer button {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.cancel-btn {
+    background: #2d2d2d;
+    color: #fff;
+    border: 1px solid #333;
+}
+
+.cancel-btn:hover {
+    background: #333;
+}
+
+.save-btn {
+    background: #ff4757;
+    color: #fff;
+    border: none;
+}
+
+.save-btn:hover {
+    background: #ff5e6c;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 576px) {
+    .modal-content {
+        width: 95%;
+        padding: 20px;
+    }
+    
+    .modal-footer {
+        flex-direction: column;
+    }
+    
+    .modal-footer button {
+        width: 100%;
+    }
+}
+
+/* Notifications Modal Styles */
+.notifications-content {
+    max-width: 500px;
+    width: 100%;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 15px;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.modal-header h2 i {
+    margin-right: 10px;
+    color: var(--primary-color);
+}
+
+.notifications-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.3s;
+}
+
+.notification-item:hover {
+    background-color: var(--hover-color);
+}
+
+.notification-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+.notification-info {
+    flex: 1;
+}
+
+.notification-info p {
+    margin: 0 0 5px 0;
+    color: var(--text-color);
+}
+
+.notification-info strong {
+    color: var(--primary-color);
+}
+
+.notification-time {
+    font-size: 0.85rem;
+    color: var(--secondary-text);
+}
+
+/* Scrollbar Styles for Notifications */
+.notifications-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notifications-list::-webkit-scrollbar-track {
+    background: var(--bg-color);
+}
+
+.notifications-list::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 3px;
+}
+
+/* Темная тема для уведомлений */
+body.dark-theme .notifications-dropdown {
+    background: var(--navbar-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.dark-theme .notification-item {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-theme .notification-time {
+    color: #999;
+}
+
+/* Стили для иконок в тёмной теме */
+body.dark-theme .profile-nav button i,
+body.dark-theme .settings-group h3 i,
+body.dark-theme .form-group label i {
+    color: var(--text-primary) !important;
+}
+
+body.dark-theme .recipe-stats i,
+body.dark-theme .profile-stats i {
+    color: var(--text-secondary) !important;
+}
+
+/* Особые стили для иконок действий */
+body.dark-theme .edit-avatar i,
+body.dark-theme .edit-cover i,
+body.dark-theme .edit-profile i {
+    color: var(--text-primary) !important;
+}
+
+/* Стили для иконок в модальном окне */
+body.dark-theme .modal-content .close i {
+    color: var(--text-primary) !important;
+}
+
+/* Стили для текста в тёмной теме */
+body.dark-theme .profile-name h1,
+body.dark-theme .profile-bio,
+body.dark-theme .recipe-title,
+body.dark-theme .settings-group h3,
+body.dark-theme .settings-item label,
+body.dark-theme .modal-content h2,
+body.dark-theme .form-group label {
+    color: var(--text-primary) !important;
+}
+
+body.dark-theme .recipe-description,
+body.dark-theme .recipe-stats,
+body.dark-theme .profile-stats .stat-label,
+body.dark-theme .profile-stats .stat-value {
+    color: var(--text-secondary) !important;
+}
+
+/* Стили для поля поиска в тёмной теме */
+body.dark-theme .search-bar input {
+    color: var(--text-primary);
+}
+
+body.dark-theme .search-bar input::placeholder {
+    color: var(--text-secondary);
+}
+
+/* Стили для селектов и инпутов в тёмной теме */
+body.dark-theme .settings-select,
+body.dark-theme .form-group input,
+body.dark-theme .form-group textarea {
+    color: var(--text-primary);
+    background-color: var(--bg-primary);
+}
+
+/* Стили для кнопок в тёмной теме */
+body.dark-theme .settings-btn {
+    color: var(--text-primary);
+}
+
+/* Исключение для опасной кнопки */
+body.dark-theme .settings-btn.danger {
+    color: #ff4757;
+}
+
+body.dark-theme .settings-btn.danger:hover {
+    color: white;
+}
+
+/* Стили для статистики в тёмной теме */
+body.dark-theme .stat {
+    color: var(--text-primary);
+}
+
+/* Стили для значков в тёмной теме */
+body.dark-theme .chef-badge {
+    color: var(--primary-color);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .profile-main {
+        margin-top: 60px;
+    }
+
+    .profile-cover {
+        height: 200px;
+    }
+
+    .profile-info {
+        margin-top: -60px;
+        padding: 1.5rem;
+    }
+
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+    }
+
+    .profile-name {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .profile-name h1 {
+        font-size: 1.5rem;
+    }
+
+    .profile-stats {
+        gap: 2rem;
+    }
+
+    .profile-nav {
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+    }
+
+    .profile-nav button {
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-stats {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .profile-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-content {
+        padding: 1.5rem;
+    }
+}
+
+/* Стили для модального окна изменения обложки */
+.cover-options {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+}
+
+.cover-option {
+    flex: 1;
+    background: var(--bg-secondary);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: var(--card-shadow);
+}
+
+.cover-option h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    color: var(--text-primary);
+}
+
+.cover-option h3 i {
+    color: var(--primary-color);
+}
+
+.upload-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.upload-btn:hover {
+    background: var(--hover-color);
+}
+
+.gradient-previews {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.gradient-preview {
+    height: 80px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.gradient-preview:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.generate-gradient-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--secondary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.generate-gradient-btn:hover {
+    background: var(--hover-color);
+}
+
+/* Make sure modal is on top */
+#changeCoverModal {
+    z-index: 1000;
+}
+
+#changeCoverModal .modal-content {
+    max-width: 600px;
+}
+
+/* Dark theme adjustments */
+body.dark-theme .cover-option {
+    background: var(--bg-secondary);
+}
+
+body.dark-theme .cover-option h3 {
+    color: var(--text-primary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .cover-options {
+        flex-direction: column;
+    }
+    
+    .cover-option {
+        width: 100%;
+    }
+}
+
+/* Avatar Change Modal Styles */
+.avatar-preview-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+#avatarPreview {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--border-color);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.avatar-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    width: 100%;
+}
+
+.avatar-actions button {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.avatar-actions .upload-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+}
+
+.avatar-actions .upload-btn:hover {
+    background: var(--hover-color);
+    transform: translateY(-2px);
+}
+
+.avatar-actions .reset-btn {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.avatar-actions .reset-btn:hover {
+    background: var(--hover-bg);
+    transform: translateY(-2px);
+}
+
+/* Dark theme adjustments */
+body.dark-theme #avatarPreview {
+    border-color: var(--border-color);
+}
+
+body.dark-theme .avatar-actions .reset-btn {
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+}
+
+/* Стили для модального окна соглашения повара */
+.agreement-section {
+    margin-bottom: 24px;
+    padding: 16px;
+    background: var(--bg-primary);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.agreement-section h3 {
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.agreement-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.agreement-section li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.agreement-section li i {
+    font-size: 1rem;
+    width: 20px;
+    text-align: center;
+}
+
+.agreement-section li i.fa-check {
+    color: #4CAF50;
+}
+
+.agreement-section li i.fa-star,
+.agreement-section li i.fa-crown {
+    color: #FFD700;
+}
+
+.agreement-section li i.fa-tools,
+.agreement-section li i.fa-chart-line {
+    color: #2196F3;
+}
+
+.agreement-section li i.fa-exclamation-circle {
+    color: #FF5722;
+}
+
+.agreement-checkbox {
+    margin: 20px 0;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #f5f5f5;
+    border: 2px solid #e0e0e0;
+    transition: all 0.3s ease;
+}
+
+.agreement-checkbox label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #333;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.agreement-checkbox input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+/* Темная тема */
+body.dark-theme .agreement-section {
+    background: var(--bg-secondary);
+}
+
+body.dark-theme .agreement-checkbox {
+    background-color: #2d2d2d;
+    border-color: #404040;
+}
+
+/* Анимации для модального окна */
+#chefAgreementModal .modal-content {
+    transform: scale(0.9);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+#chefAgreementModal.active .modal-content {
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* Анимация встряхивания для предупреждения */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+}
+
+.agreement-checkbox.warning {
+    animation: shake 0.5s ease-in-out;
+    background-color: rgba(255, 87, 34, 0.1);
+    border-color: #FF5722;
+}
+
+/* Стили для чекбокса соглашения */
+.agreement-checkbox {
+    margin: 20px 0;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #f5f5f5;
+    border: 2px solid #e0e0e0;
+    transition: all 0.3s ease;
+}
+
+.agreement-checkbox input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+.agreement-checkbox label {
+    color: #333;
+    font-weight: 500;
+}
+
+/* Стили для состояния предупреждения */
+.agreement-checkbox.warning {
+    animation: shake 0.5s ease-in-out;
+    background-color: rgba(255, 87, 34, 0.1);
+    border-color: #FF5722;
+    box-shadow: 0 0 0 2px rgba(255, 87, 34, 0.2);
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+}
+
+/* Улучшенные стили для кнопок в модальном окне */
+#chefAgreementModal .btn-primary {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#chefAgreementModal .btn-primary:disabled {
+    background-color: #9E9E9E;
+    cursor: not-allowed;
+}
+
+#chefAgreementModal .btn-secondary {
+    background-color: #757575;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-right: 10px;
+}
+
+#chefAgreementModal .btn-primary:hover:not(:disabled),
+#chefAgreementModal .btn-secondary:hover {
+    filter: brightness(1.1);
+}
+
+.agreement-checkbox label{
+    color: white;
+    font-size: 1.1rem;
+}

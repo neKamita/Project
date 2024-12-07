@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: lessonn-7
+  datasource:
+    url: jdbc:postgresql://localhost:5432/project
+    password: root123
+    username: postgres
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
