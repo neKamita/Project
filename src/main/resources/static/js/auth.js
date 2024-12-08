@@ -21,8 +21,27 @@ class AuthPage {
         this.form.addEventListener('submit', (e) => {
             e.preventDefault();
             if (this.validateForm()) {
-                // Если валидация прошла успешно, отправляем форму
-                this.form.submit();
+                const formData = new FormData(this.form);
+                const data = Object.fromEntries(formData.entries());
+
+                fetch('/auth/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.error) {
+                        NotificationManager.show(result.message, 'error');
+                    } else {
+                        NotificationManager.show('Регистрация успешна', 'success');
+                    }
+                })
+                .catch(error => {
+                    NotificationManager.show('Ошибка при регистрации', 'error');
+                });
             }
         });
 
