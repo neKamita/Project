@@ -2,6 +2,7 @@
 class AuthPage {
     constructor() {
         this.form = document.querySelector('.auth-form');
+        this.signInForm = this.form; // Используем ту же форму для входа
         this.passwordInputs = document.querySelectorAll('input[type="password"]');
         this.emailInput = document.querySelector('input[type="email"]');
         
@@ -9,52 +10,151 @@ class AuthPage {
     }
 
     init() {
+        // Проверяем текущую страницу
+        this.checkCurrentPage();
+
         this.setupFormValidation();
         this.setupPasswordToggles();
         this.setupPasswordStrength();
         this.setupSocialAuth();
     }
 
+    checkCurrentPage() {
+        // Проверяем, какая страница загружена
+        fetch('/auth/check-page')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Current page:', data.page);
+                // Можно добавить дополнительную логику для разных страниц
+            })
+            .catch(error => {
+                console.error('Error checking page:', error);
+            });
+    }
+
     setupFormValidation() {
-        if (!this.form) return;
+        if (this.form) {
+            this.form.addEventListener('submit', (event) => {
+                event.preventDefault();
+                
+                if (this.validateForm()) {
+                    const data = this.collectFormData();
+                    
+                    // Определяем URL в зависимости от текущей страницы
+                    const url = this.form.getAttribute('action');
+                    
+                    this.submitForm(url, data);
+                }
+            });
+        }
+    }
 
-        this.form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            if (this.validateForm()) {
-                const formData = new FormData(this.form);
-                const data = Object.fromEntries(formData.entries());
-
-                fetch('/auth/signup', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data)
-                })
-                .then(response => response.json())
-                .then(result => {
-                    if (result.error) {
-                        NotificationManager.show(result.message, 'error');
-                    } else {
-                        NotificationManager.show('Регистрация успешна', 'success');
-                    }
-                })
-                .catch(error => {
-                    NotificationManager.show('Ошибка при регистрации', 'error');
-                });
+    collectFormData() {
+        const formData = {};
+        const inputs = this.form.querySelectorAll('input');
+        
+        inputs.forEach(input => {
+            if (input.name) {
+                formData[input.name] = input.value;
             }
         });
+        
+        return formData;
+    }
 
-        // Real-time validation
-        this.form.querySelectorAll('input').forEach(input => {
-            if (input.type === 'password' && input.id === 'password') {
-                // Для поля пароля используем только setupPasswordStrength
-                input.addEventListener('input', () => ChefShare.FormValidator.clearError(input));
-            } else {
-                // Для остальных полей оставляем проверку при потере фокуса
-                input.addEventListener('blur', () => this.validateField(input));
-                input.addEventListener('input', () => ChefShare.FormValidator.clearError(input));
+    submitForm(url, data) {
+        // Validate data structure before sending
+        if (!data || !data.email || !data.password) {
+            console.error('Invalid payload: Missing email or password', data);
+            this.showError('Пожалуйста, заполните все поля');
+            return;
+        }
+
+        // Detailed payload logging with sensitive information masked
+        console.log('Sending sign-in payload:', JSON.stringify({
+            email: data.email,
+            passwordLength: data.password ? `${data.password.length} characters` : 'null'
+        }));
+
+        // Prepare the fetch request with comprehensive error handling
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                email: data.email,
+                password: data.password
+            })
+        })
+        .then(response => {
+            console.log('Full response details:', {
+                status: response.status,
+                statusText: response.statusText,
+                headers: Object.fromEntries(response.headers.entries())
+            });
+            
+            const contentType = response.headers.get('content-type');
+            console.log('Content-Type:', contentType);
+            
+            // Log the raw response text for debugging
+            return response.text().then(text => {
+                console.log('Raw response text:', text);
+                
+                // Try to parse the text as JSON
+                try {
+                    return text ? JSON.parse(text) : null;
+                } catch (parseError) {
+                    console.error('JSON parsing error:', parseError);
+                    console.error('Unparseable response text:', text);
+                    throw new Error('Invalid JSON response: ' + text);
+                }
+            });
+        })
+        .then(result => {
+            console.log('Signin result:', result);
+            
+            // Comprehensive result handling
+            if (!result) {
+                throw new Error('Empty server response');
             }
+            
+            if (result.error) {
+                // Handle different types of errors
+                const errorMessage = result.message || 
+                    result.details || 
+                    'Неизвестная ошибка входа';
+                
+                this.showError(errorMessage);
+                
+                // Optional: log additional error details
+                if (result.errors) {
+                    console.warn('Validation errors:', result.errors);
+                }
+            } else {
+                this.showSuccess(result.message || 'Успешный вход');
+                setTimeout(() => {
+                    window.location.href = result.redirect || '/';
+                }, 1500);
+            }
+        })
+        .catch(error => {
+            console.error('Signin error details:', {
+                name: error.name,
+                message: error.message,
+                stack: error.stack
+            });
+            
+            // User-friendly error messages
+            const userFriendlyMessage = 
+                error.name === 'TypeError' ? 
+                    'Проблема с подключением к серверу' :
+                error.name === 'SyntaxError' ?  
+                    'Получен некорректный ответ от сервера' :
+                    'Произошла ошибка при входе';
+            
+            this.showError(userFriendlyMessage);
         });
     }
 
@@ -72,150 +172,127 @@ class AuthPage {
     }
 
     validateField(input) {
-        const { FormValidator } = ChefShare;
-        let isValid = true;
-        let errorMessage = '';
-
-        // Пропускаем проверку силы пароля здесь, так как она обрабатывается в setupPasswordStrength
-        if (input.type === 'password' && input.id === 'password') {
-            return true;
+        // Remove any existing error messages
+        const existingError = input.parentNode.querySelector('.error-message');
+        if (existingError) {
+            existingError.remove();
         }
 
-        switch(input.type) {
+        const value = input.value.trim();
+        const type = input.type;
+        let isValid = true;
+
+        // Check for required fields
+        if (input.hasAttribute('required') && value === '') {
+            this.showFieldError(input, 'Это поле обязательно для заполнения');
+            isValid = false;
+        }
+
+        // Специфические проверки по типу
+        switch (type) {
             case 'email':
-                if (!FormValidator.validateEmail(input.value)) {
-                    errorMessage = 'Пожалуйста, введите корректный email';
-                    FormValidator.showError(input, errorMessage);
+                const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                if (!emailRegex.test(value)) {
+                    this.showFieldError(input, 'Введите корректный адрес электронной почты');
                     isValid = false;
                 }
                 break;
             case 'password':
-                if (!FormValidator.validatePassword(input.value)) {
-                    errorMessage = 'Пароль должен содержать минимум 8 символов';
-                    FormValidator.showError(input, errorMessage);
-                    isValid = false;
-                }
-                break;
-            case 'text':
-                if (input.id === 'username' && !FormValidator.validateUsername(input.value)) {
-                    errorMessage = 'Имя пользователя должно содержать от 3 до 30 символов';
-                    FormValidator.showError(input, errorMessage);
-                    isValid = false;
+                // Проверка сложности пароля
+                const passwordValidations = [
+                    { regex: /.{8,}/, message: 'Пароль должен содержать не менее 8 символов' },
+                    { regex: /[A-Z]/, message: 'Пароль должен содержать заглавную букву' },
+                    { regex: /[a-z]/, message: 'Пароль должен содержать строчную букву' },
+                    { regex: /[0-9]/, message: 'Пароль должен содержать цифру' },
+                    { regex: /[!@#$%^&*()]/, message: 'Пароль должен содержать специальный символ' }
+                ];
+
+                for (let validation of passwordValidations) {
+                    if (!validation.regex.test(value)) {
+                        this.showFieldError(input, validation.message);
+                        isValid = false;
+                        break;  // Show only the first validation error
+                    }
                 }
                 break;
         }
 
-        // Check password confirmation
-        if (input.id === 'confirmPassword') {
-            const password = document.getElementById('password');
-            if (password && input.value !== password.value) {
-                errorMessage = 'Пароли не совпадают';
-                FormValidator.showError(input, errorMessage);
-                isValid = false;
+        // Custom validation attributes
+        if (input.hasAttribute('data-validate')) {
+            const customValidation = input.getAttribute('data-validate');
+            switch (customValidation) {
+                case 'match':
+                    const matchTarget = document.querySelector(input.getAttribute('data-match-target'));
+                    if (matchTarget && value !== matchTarget.value) {
+                        this.showFieldError(input, 'Значения не совпадают');
+                        isValid = false;
+                    }
+                    break;
             }
         }
 
-        if (!isValid && errorMessage) {
-            NotificationManager.show(errorMessage, 'error');
-        }
+        // Add/remove invalid class for styling
+        input.classList.toggle('is-invalid', !isValid);
 
         return isValid;
     }
 
+    showFieldError(input, message) {
+        const errorElement = document.createElement('div');
+        errorElement.classList.add('error-message');
+        errorElement.textContent = message;
+        input.parentNode.insertBefore(errorElement, input.nextSibling);
+    }
+
     setupPasswordToggles() {
         this.passwordInputs.forEach(input => {
-            const toggleBtn = document.createElement('i');
-            toggleBtn.className = 'fas fa-eye password-toggle';
-            input.parentElement.appendChild(toggleBtn);
-
+            const toggleBtn = document.createElement('button');
+            toggleBtn.type = 'button';
+            toggleBtn.classList.add('password-toggle');
+            toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
+            
             toggleBtn.addEventListener('click', () => {
                 const type = input.type === 'password' ? 'text' : 'password';
                 input.type = type;
-                toggleBtn.className = `fas fa-eye${type === 'password' ? '' : '-slash'} password-toggle`;
+                toggleBtn.querySelector('i').classList.toggle('fa-eye');
+                toggleBtn.querySelector('i').classList.toggle('fa-eye-slash');
             });
+            
+            input.parentNode.insertBefore(toggleBtn, input.nextSibling);
         });
     }
 
     setupPasswordStrength() {
-        const passwordInput = document.getElementById('password');
-        if (!passwordInput) return;
-
-        let lastNotification = null;
-        let notificationTimeout = null;
-
-        passwordInput.addEventListener('input', (e) => {
-            const password = e.target.value;
-            
-            // Очищаем предыдущий таймаут
-            if (notificationTimeout) {
-                clearTimeout(notificationTimeout);
-            }
-
-            // Ждем 500мс после последнего ввода, прежде чем показать уведомление
-            notificationTimeout = setTimeout(() => {
-                if (password.length === 0) {
-                    lastNotification = null;
-                    return;
-                }
-
-                const strength = this.calculatePasswordStrength(password);
-                let message = '';
-                let type = 'info';
-
-                if (strength < 30) {
-                    message = 'Слабый пароль. Добавьте цифры и специальные символы.';
-                    type = 'error';
-                } else if (strength < 60) {
-                    message = 'Средний пароль. Добавьте больше разных символов для усиления.';
-                    type = 'warning';
-                } else if (strength >= 60) {
-                    message = 'Сильный пароль!';
-                    type = 'success';
-                }
-
-                // Проверяем, изменилось ли сообщение
-                if (lastNotification !== message) {
-                    NotificationManager.show(message, type);
-                    lastNotification = message;
-                }
-            }, 500);
-        });
+        const passwordInput = document.querySelector('input[type="password"]');
+        if (passwordInput) {
+            passwordInput.addEventListener('input', () => {
+                const strength = this.calculatePasswordStrength(passwordInput.value);
+                this.updatePasswordStrengthIndicator(strength);
+            });
+        }
     }
 
     calculatePasswordStrength(password) {
         let strength = 0;
-        
-        // Минимальная длина
-        if (password.length >= 8) {
-            strength += 20;
-        } else {
-            return 0; // Если пароль короче 8 символов, сразу возвращаем 0
+        if (password.length >= 8) strength++;
+        if (password.match(/[a-z]+/)) strength++;
+        if (password.match(/[A-Z]+/)) strength++;
+        if (password.match(/[0-9]+/)) strength++;
+        if (password.match(/[$@#&!]+/)) strength++;
+        return strength;
+    }
+
+    updatePasswordStrengthIndicator(strength) {
+        const indicator = document.querySelector('.password-strength');
+        if (indicator) {
+            indicator.innerHTML = '';
+            for (let i = 0; i < 5; i++) {
+                const bar = document.createElement('div');
+                bar.classList.add('strength-bar');
+                if (i < strength) bar.classList.add('active');
+                indicator.appendChild(bar);
+            }
         }
-
-        // Дополнительные баллы за длину
-        if (password.length >= 12) {
-            strength += 10;
-        }
-
-        // Проверяем наличие разных типов символов
-        const hasNumbers = /[0-9]/.test(password);
-        const hasLowerCase = /[a-z]/.test(password);
-        const hasUpperCase = /[A-Z]/.test(password);
-        const hasSpecial = /[^A-Za-z0-9]/.test(password);
-
-        // Начисляем баллы за каждый тип символов
-        if (hasNumbers) strength += 15;
-        if (hasLowerCase) strength += 15;
-        if (hasUpperCase) strength += 20;
-        if (hasSpecial) strength += 20;
-
-        // Бонус за комбинацию разных типов символов
-        let typesCount = [hasNumbers, hasLowerCase, hasUpperCase, hasSpecial].filter(Boolean).length;
-        if (typesCount >= 3) {
-            strength += 10;
-        }
-
-        return Math.min(strength, 100);
     }
 
     setupSocialAuth() {
@@ -224,9 +301,23 @@ class AuthPage {
             button.addEventListener('click', (e) => {
                 e.preventDefault();
                 const provider = button.getAttribute('data-provider');
-                NotificationManager.show(`${provider} authentication is not available yet`, 'info');
+                this.initiateSocialLogin(provider);
             });
         });
+    }
+
+    initiateSocialLogin(provider) {
+        // Заглушка для социальной авторизации
+        console.log(`Initiating login with ${provider}`);
+        NotificationManager.show(`Вход через ${provider} временно недоступен`, 'warning');
+    }
+
+    showError(message) {
+        NotificationManager.show(message, 'error');
+    }
+
+    showSuccess(message) {
+        NotificationManager.show(message, 'success');
     }
 }
 

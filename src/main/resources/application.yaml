@@ -1,6 +1,6 @@
 spring:
   application:
-    name: lessonn-7
+    name: project
   datasource:
     url: jdbc:postgresql://localhost:5432/project
     password: root123
@@ -9,6 +9,15 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+logging:
+  level:
+    root: INFO
+    uz.pdp.project: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.validation: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 springdoc:
   swagger-ui:
     path: "/ui"
