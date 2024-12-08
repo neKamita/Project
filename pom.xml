@@ -71,9 +71,14 @@
             <artifactId>spring-security-oauth2-jose</artifactId>
         </dependency>
         <dependency>
+<<<<<<< Updated upstream
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>2.6.0</version>
+=======
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+>>>>>>> Stashed changes
         </dependency>
     </dependencies>
 
