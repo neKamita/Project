@@ -86,8 +86,9 @@ public class UserService {
             User user = userOptional.get();
 
             // Log user details for debugging
-            log.debug("User found - ID: {}, Username: {}, Email: {}",
-                    user.getId(), user.getUsername(), user.getEmail());
+            log.debug("User found - ID: {}, Username: {}, Email: {}, Stored Password: {}",
+                    user.getId(), user.getUsername(), user.getEmail(),
+                    user.getPassword() != null ? "[PROTECTED]" : "null");
 
             // Check if password matches
             boolean isPasswordMatch = passwordService.isPasswordValid(
@@ -104,8 +105,8 @@ public class UserService {
             return Optional.of(user);
 
         } catch (Exception e) {
-            log.error("Unexpected error during authentication for email: {}", 
-                      signInDTO.getEmail(), e);
+            log.error("Unexpected error during authentication for email: {}",
+                    signInDTO.getEmail(), e);
             throw new RuntimeException("Authentication failed", e);
         }
     }
