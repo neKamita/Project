@@ -21,7 +21,6 @@ public class User {
     @Column(nullable = false)
     private String firstName;
 
-    @Column()
     private String lastName;
 
     @Column(nullable = false, unique = true)
@@ -32,4 +31,6 @@ public class User {
 
     @Column(nullable = false)
     private boolean enabled = true;
+
+    private String role;
 }
