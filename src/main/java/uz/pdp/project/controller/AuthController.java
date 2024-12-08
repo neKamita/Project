@@ -186,12 +186,30 @@ public class AuthController {
     }
 
     private SignUpDTO convertPayloadToSignUpDTO(Map<String, String> payload) {
+        // Log the entire payload for debugging
+        log.info("Signup Payload: {}", payload);
+
+        // Validate that all required fields are present
+        String[] requiredFields = { "username", "firstName", "email", "password" };
+        for (String field : requiredFields) {
+            if (!payload.containsKey(field) || payload.get(field) == null || payload.get(field).trim().isEmpty()) {
+                log.error("Missing or empty required field: {}", field);
+                throw new IllegalArgumentException("Missing required field: " + field);
+            }
+        }
+
         SignUpDTO signUpDTO = new SignUpDTO();
-        signUpDTO.setUsername(payload.get("username"));
-        signUpDTO.setFirstName(payload.get("firstName"));
-        signUpDTO.setLastName(payload.get("lastName"));
-        signUpDTO.setEmail(payload.get("email"));
+        signUpDTO.setUsername(payload.get("username").trim());
+        signUpDTO.setFirstName(payload.get("firstName").trim());
+
+        // Optional fields
+        if (payload.containsKey("lastName") && payload.get("lastName") != null) {
+            signUpDTO.setLastName(payload.get("lastName").trim());
+        }
+
+        signUpDTO.setEmail(payload.get("email").trim());
         signUpDTO.setPassword(payload.get("password"));
+
         return signUpDTO;
     }
 

@@ -130,6 +130,22 @@ public class UserService {
     }
 
     private void validateSignUpDTO(SignUpDTO signUpDTO) {
-        // Add validation logic here if needed
+        // Check for existing email
+        if (userRepository.existsByEmailIgnoreCase(signUpDTO.getEmail())) {
+            log.error("Email already exists: {}", signUpDTO.getEmail());
+            throw new RuntimeException("User with this email already exists");
+        }
+
+        // Check for existing username
+        if (userRepository.existsByUsernameIgnoreCase(signUpDTO.getUsername())) {
+            log.error("Username already exists: {}", signUpDTO.getUsername());
+            throw new RuntimeException("Username is already taken");
+        }
+
+        // Additional custom validation can be added here
+        if (signUpDTO.getPassword().length() < 8) {
+            log.error("Password too short for user: {}", signUpDTO.getUsername());
+            throw new RuntimeException("Password must be at least 8 characters long");
+        }
     }
 }

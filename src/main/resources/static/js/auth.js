@@ -52,10 +52,33 @@ class AuthPage {
     collectFormData() {
         const formData = {};
         const inputs = this.form.querySelectorAll('input');
+        const url = this.form.getAttribute('action');
+        
+        // Determine if this is a sign-up or sign-in form based on the URL
+        const isSignUpForm = url.includes('/signup');
         
         inputs.forEach(input => {
             if (input.name) {
-                formData[input.name] = input.value;
+                // Always include email and password
+                if (input.name === 'email' || input.name === 'password') {
+                    formData[input.name] = input.value;
+                }
+                
+                // For sign-up, include additional fields
+                if (isSignUpForm) {
+                    const additionalSignUpFields = [
+                        'username', 
+                        'firstName', 
+                        'lastName'  // Optional field
+                    ];
+                    
+                    if (additionalSignUpFields.includes(input.name)) {
+                        // Only add non-empty values
+                        if (input.value.trim() !== '') {
+                            formData[input.name] = input.value.trim();
+                        }
+                    }
+                }
             }
         });
         
@@ -64,16 +87,32 @@ class AuthPage {
 
     submitForm(url, data) {
         // Validate data structure before sending
-        if (!data || !data.email || !data.password) {
-            console.error('Invalid payload: Missing email or password', data);
-            this.showError('Пожалуйста, заполните все поля');
-            return;
+        const isSignUpForm = url.includes('/signup');
+        
+        if (isSignUpForm) {
+            // Sign-up specific validation
+            const requiredSignUpFields = ['email', 'password', 'username', 'firstName'];
+            const missingFields = requiredSignUpFields.filter(field => !data[field]);
+            
+            if (missingFields.length > 0) {
+                console.error('Invalid sign-up payload: Missing fields', missingFields);
+                this.showError(`Пожалуйста, заполните обязательные поля: ${missingFields.join(', ')}`);
+                return;
+            }
+        } else {
+            // Sign-in validation
+            if (!data || !data.email || !data.password) {
+                console.error('Invalid sign-in payload: Missing email or password', data);
+                this.showError('Пожалуйста, заполните email и пароль');
+                return;
+            }
         }
 
         // Detailed payload logging with sensitive information masked
-        console.log('Sending sign-in payload:', JSON.stringify({
+        console.log('Sending authentication payload:', JSON.stringify({
             email: data.email,
-            passwordLength: data.password ? `${data.password.length} characters` : 'null'
+            passwordLength: data.password ? `${data.password.length} characters` : 'null',
+            ...(isSignUpForm ? { username: data.username } : {})
         }));
 
         // Prepare the fetch request with comprehensive error handling
@@ -83,10 +122,7 @@ class AuthPage {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
-            body: JSON.stringify({
-                email: data.email,
-                password: data.password
-            })
+            body: JSON.stringify(data)
         })
         .then(response => {
             console.log('Full response details:', {
