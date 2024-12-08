@@ -30,4 +30,12 @@ public class SignUpDTO {
 
     @NotBlank(message = "Password confirmation is required")
     private String confirmPassword;
+
+
+    @NotBlank(message = "First name is required")
+    private String firstName;
+
+    private String lastName;
+
+
 }
