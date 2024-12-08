@@ -79,7 +79,7 @@
     box-shadow: 0 0 0 2px var(--primary-color-light);
 }
 
-.auth-form .form-group i {
+.auth-form .password-toggle {
     position: absolute;
     right: 1rem;
     top: 60%;
@@ -87,6 +87,9 @@
     cursor: pointer;
     font-size: 1.1rem;
     transition: color var(--transition-speed) var(--transition-timing);
+    background-color: transparent;
+    outline: none;
+    border: none;
 }
 
 .auth-form .form-group i:hover {
@@ -96,6 +99,7 @@
 .auth-form .password-toggle {
     cursor: pointer;
 }
+
 
 .auth-form .btn-primary {
     margin: 1rem auto;

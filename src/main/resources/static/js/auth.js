@@ -32,22 +32,30 @@ class AuthPage {
             });
     }
 
-    setupFormValidation() {
-        if (this.form) {
-            this.form.addEventListener('submit', (event) => {
-                event.preventDefault();
+setupFormValidation() {
+    if (this.form) {
+        this.form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            
+            if (this.validateForm()) {
+                const data = this.collectFormData();
                 
-                if (this.validateForm()) {
-                    const data = this.collectFormData();
-                    
-                    // Определяем URL в зависимости от текущей страницы
-                    const url = this.form.getAttribute('action');
-                    
-                    this.submitForm(url, data);
+                // Check if it's a sign-up form and validate password confirmation
+                const url = this.form.getAttribute('action');
+                if (url.includes('/signup')) {
+                    const confirmPassword = this.form.querySelector('input[name="confirmPassword"]').value;
+                    if (data.password !== confirmPassword) {
+                        this.showError('Пароли не совпадают'); // Show error message
+                        return; // Prevent form submission
+                    }
                 }
-            });
-        }
+
+                // If all validations pass, submit the form
+                this.submitForm(url, data);
+            }
+        });
     }
+}
 
     collectFormData() {
         const formData = {};
@@ -84,98 +92,74 @@ class AuthPage {
         
         return formData;
     }
-
-    submitForm(url, data) {
-        // Validate data structure before sending
-        const isSignUpForm = url.includes('/signup');
+submitForm(url, data) {
+    // Validate data structure before sending
+    const isSignUpForm = url.includes('/signup');
+    
+    if (isSignUpForm) {
+        // Sign-up specific validation
+        const requiredSignUpFields = ['email', 'password', 'username', 'firstName'];
+        const missingFields = requiredSignUpFields.filter(field => !data[field]);
         
-        if (isSignUpForm) {
-            // Sign-up specific validation
-            const requiredSignUpFields = ['email', 'password', 'username', 'firstName'];
-            const missingFields = requiredSignUpFields.filter(field => !data[field]);
-            
-            if (missingFields.length > 0) {
-                console.error('Invalid sign-up payload: Missing fields', missingFields);
-                this.showError(`Пожалуйста, заполните обязательные поля: ${missingFields.join(', ')}`);
-                return;
-            }
-        } else {
-            // Sign-in validation
-            if (!data || !data.email || !data.password) {
-                console.error('Invalid sign-in payload: Missing email or password', data);
-                this.showError('Пожалуйста, заполните email и пароль');
-                return;
-            }
+        if (missingFields.length > 0) {
+            console.error('Invalid sign-up payload: Missing fields', missingFields);
+            this.showError(`Пожалуйста, заполните обязательные поля: ${missingFields.join(', ')}`);
+            return;
         }
+    } else {
+        // Sign-in validation
+        if (!data || !data.email || !data.password) {
+            console.error('Invalid sign-in payload: Missing email or password', data);
+            this.showError('Пожалуйста, заполните email и пароль');
+            return;
+        }
+    }
 
-        // Detailed payload logging with sensitive information masked
-        console.log('Sending authentication payload:', JSON.stringify({
-            email: data.email,
-            passwordLength: data.password ? `${data.password.length} characters` : 'null',
-            ...(isSignUpForm ? { username: data.username } : {})
-        }));
+    // Detailed payload logging with sensitive information masked
+    console.log('Sending authentication payload:', JSON.stringify({
+        email: data.email,
+        passwordLength: data.password ? `${data.password.length} characters` : 'null',
+        ...(isSignUpForm ? { username: data.username } : {})
+    }));
 
-        // Prepare the fetch request with comprehensive error handling
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => {
-            console.log('Full response details:', {
-                status: response.status,
-                statusText: response.statusText,
-                headers: Object.fromEntries(response.headers.entries())
+    // Prepare the fetch request with comprehensive error handling
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        // Check if the response is OK (status in the range 200-299)
+        if (!response.ok) {
+            return response.json().then(err => {
+                // Use the 'details' field from the error response
+                this.showError(err.details || 'Ошибка при регистрации');
+                throw new Error(err.details || 'Ошибка при регистрации');
             });
-            
-            const contentType = response.headers.get('content-type');
-            console.log('Content-Type:', contentType);
-            
-            // Log the raw response text for debugging
-            return response.text().then(text => {
-                console.log('Raw response text:', text);
-                
-                // Try to parse the text as JSON
-                try {
-                    return text ? JSON.parse(text) : null;
-                } catch (parseError) {
-                    console.error('JSON parsing error:', parseError);
-                    console.error('Unparseable response text:', text);
-                    throw new Error('Invalid JSON response: ' + text);
-                }
-            });
-        })
-        .then(result => {
-            console.log('Signin result:', result);
-            
-            // Comprehensive result handling
-            if (!result) {
-                throw new Error('Empty server response');
-            }
-            
-            if (result.error) {
-                // Handle different types of errors
-                const errorMessage = result.message || 
-                    result.details || 
-                    'Неизвестная ошибка входа';
-                
-                this.showError(errorMessage);
-                
-                // Optional: log additional error details
-                if (result.errors) {
-                    console.warn('Validation errors:', result.errors);
-                }
-            } else {
-                this.showSuccess(result.message || 'Успешный вход');
-                setTimeout(() => {
-                    window.location.href = result.redirect || '/';
-                }, 1500);
-            }
-        })
-        .catch(error => {
+        }
+        return response.json();
+    })
+    .then(result => {
+        console.log('Signin result:', result);
+        
+        // Comprehensive result handling
+        if (result.error) {
+            // Handle different types of errors
+            const errorMessage = result.message || result.details || 'Неизвестная ошибка входа';
+            this.showError(errorMessage);
+        } else {
+            this.showSuccess(result.message || 'Регистрация успешна!');
+            setTimeout(() => {
+                window.location.href = result.redirect || '/';
+            }, 1500);
+        }
+    })
+    .catch(error => {
+        // Check if the error message is already shown
+        if (!error.message.includes('Username is already taken') && !error.message.includes('User with this email already exists')) {
             console.error('Signin error details:', {
                 name: error.name,
                 message: error.message,
@@ -191,8 +175,9 @@ class AuthPage {
                     'Произошла ошибка при входе';
             
             this.showError(userFriendlyMessage);
-        });
-    }
+        }
+    });
+}
 
     validateForm() {
         let isValid = true;
@@ -297,17 +282,39 @@ class AuthPage {
             input.parentNode.insertBefore(toggleBtn, input.nextSibling);
         });
     }
+setupPasswordStrength() {
+    const passwordInput = document.querySelector('input[type="password"]');
+    const strengthIndicator = document.querySelector('.password-strength'); // Make sure this element exists in your HTML
 
-    setupPasswordStrength() {
-        const passwordInput = document.querySelector('input[type="password"]');
-        if (passwordInput) {
-            passwordInput.addEventListener('input', () => {
-                const strength = this.calculatePasswordStrength(passwordInput.value);
-                this.updatePasswordStrengthIndicator(strength);
-            });
+    if (passwordInput) {
+        passwordInput.addEventListener('input', () => {
+            const strength = this.calculatePasswordStrength(passwordInput.value);
+            this.updatePasswordStrengthIndicator(strength, strengthIndicator);
+        });
+    }
+}
+
+calculatePasswordStrength(password) {
+    let strength = 0;
+    if (password.length >= 8) strength++;
+    if (password.match(/[a-z]+/)) strength++;
+    if (password.match(/[A-Z]+/)) strength++;
+    if (password.match(/[0-9]+/)) strength++;
+    if (password.match(/[$@#&!]+/)) strength++;
+    return strength;
+}
+
+updatePasswordStrengthIndicator(strength, indicatorElement) {
+    if (indicatorElement) {
+        indicatorElement.innerHTML = ''; // Clear previous indicators
+        for (let i = 0; i < 5; i++) {
+            const bar = document.createElement('div');
+            bar.classList.add('strength-bar');
+            if (i < strength) bar.classList.add('active');
+            indicatorElement.appendChild(bar);
         }
     }
-
+}
     calculatePasswordStrength(password) {
         let strength = 0;
         if (password.length >= 8) strength++;

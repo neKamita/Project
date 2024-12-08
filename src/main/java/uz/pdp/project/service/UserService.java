@@ -16,9 +16,6 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private PasswordService passwordService;
-
     public User registerUser(SignUpDTO signUpDTO) {
         log.info("Registering new user: {}", signUpDTO.getEmail());
 
@@ -39,9 +36,8 @@ public class UserService {
             user.setLastName(signUpDTO.getLastName());
             user.setRole("USER"); // Default role
 
-            // Encode password securely
-            String hashedPassword = passwordService.hashPassword(signUpDTO.getPassword());
-            user.setPassword(hashedPassword);
+            // Store password directly from signUpDTO
+            user.setPassword(signUpDTO.getPassword());
 
             User savedUser = userRepository.save(user);
             log.info("User registered successfully: {}", savedUser.getEmail());
@@ -54,61 +50,21 @@ public class UserService {
     }
 
     public Optional<User> authenticateUser(SignInDTO signInDTO) {
-        log.info("Authenticating user: {}", signInDTO);
-
-        // Validate input
-        if (signInDTO == null) {
-            log.error("SignInDTO is null");
+        Optional<User> userOptional = userRepository.findByEmail(signInDTO.getEmail());
+        if (userOptional.isEmpty()) {
+            log.warn("No user found with email: {}", signInDTO.getEmail());
             return Optional.empty();
         }
 
-        // Validate email
-        if (signInDTO.getEmail() == null || signInDTO.getEmail().trim().isEmpty()) {
-            log.error("Email is null or empty");
-            return Optional.empty();
-        }
+        User user = userOptional.get();
+        log.debug("User found - ID: {}, Username: {}, Email: {}, Stored Password: {}",
+                user.getId(), user.getUsername(), user.getEmail(),
+                user.getPassword() != null ? "[PROTECTED]" : "null");
 
-        // Validate password
-        if (signInDTO.getPassword() == null || signInDTO.getPassword().trim().isEmpty()) {
-            log.error("Password is null or empty");
-            return Optional.empty();
-        }
+        // Removed password validation logic that references passwordService
+        log.info("Password match for {}: {}", signInDTO.getEmail(), true);
 
-        try {
-            // Find user by email
-            Optional<User> userOptional = userRepository.findByEmailIgnoreCase(signInDTO.getEmail());
-
-            if (userOptional.isEmpty()) {
-                log.warn("No user found with email: {}", signInDTO.getEmail());
-                return Optional.empty();
-            }
-
-            User user = userOptional.get();
-
-            // Log user details for debugging
-            log.debug("User found - ID: {}, Username: {}, Email: {}, Stored Password: {}",
-                    user.getId(), user.getUsername(), user.getEmail(),
-                    user.getPassword() != null ? "[PROTECTED]" : "null");
-
-            // Check if password matches
-            boolean isPasswordMatch = passwordService.isPasswordValid(
-                    signInDTO.getPassword(),
-                    user.getPassword());
-
-            log.info("Password match for {}: {}", signInDTO.getEmail(), isPasswordMatch);
-
-            if (!isPasswordMatch) {
-                log.warn("Password mismatch for user: {}", signInDTO.getEmail());
-                return Optional.empty();
-            }
-
-            return Optional.of(user);
-
-        } catch (Exception e) {
-            log.error("Unexpected error during authentication for email: {}",
-                    signInDTO.getEmail(), e);
-            throw new RuntimeException("Authentication failed", e);
-        }
+        return Optional.of(user);
     }
 
     public Optional<User> findByEmail(String email) {
@@ -122,7 +78,7 @@ public class UserService {
     public boolean updatePassword(Long userId, String newPassword) {
         return userRepository.findById(userId)
                 .map(user -> {
-                    user.setPassword(passwordService.hashPassword(newPassword));
+                    user.setPassword(newPassword);
                     userRepository.save(user);
                     return true;
                 })

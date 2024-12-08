@@ -1,11 +1,11 @@
 package uz.pdp.project.controller;
 
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uz.pdp.project.dto.PostDTO;
 import uz.pdp.project.service.PostService;
+import uz.pdp.project.entity.User;
 
 @RestController
 @RequiredArgsConstructor
@@ -14,8 +14,8 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping
-    public ResponseEntity<?> post(PostDTO postDTO) {
-       return postService.addPost(postDTO);
+    public ResponseEntity<?> post(@RequestBody PostDTO postDTO, User user) {
+        return postService.addPost(postDTO, user);
     }
 
     @DeleteMapping("/{id}")
@@ -29,8 +29,8 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getAll() {
-       return postService.getPost();
+    public ResponseEntity<?> getAll(User user) {
+        return postService.getPost(user);
     }
 
 }
