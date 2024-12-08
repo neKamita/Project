@@ -16,15 +16,21 @@ public class UserService {
     private final PasswordService passwordService;
 
     public boolean registerUser(SignUpDTO signUpDTO) {
-        if (userRepository.existsByEmail(signUpDTO.getEmail())) {
+
+        if (userRepository.existsByEmail(signUpDTO.getEmail()) || userRepository.existsByUsername(signUpDTO.getUsername())) {
             return false;
         }
 
-        User user = new User();
-        user.setUsername(signUpDTO.getUsername());
-        user.setEmail(signUpDTO.getEmail());
-        user.setPassword(passwordService.encodePassword(signUpDTO.getPassword()));
-        user.setEnabled(true);
+        User user = User.builder()
+                .role("USER")
+                .email(signUpDTO.getEmail())
+                .enabled(true)
+                .password(signUpDTO.getPassword())
+                .firstName(signUpDTO.getFirstName())
+                .lastName(signUpDTO.getLastName())
+                .password(passwordService.encodePassword(signUpDTO.getPassword()))
+                .build();
+
 
         userRepository.save(user);
         return true;

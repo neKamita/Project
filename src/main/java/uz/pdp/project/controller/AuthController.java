@@ -56,6 +56,7 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<Map<String, Object>> signUp(
             @Valid @RequestBody SignUpDTO signUpDTO) {
+
         try {
             if (userService.registerUser(signUpDTO)) {
                 return ResponseEntity.ok(Map.of(
