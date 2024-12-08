@@ -21,7 +21,8 @@ class AuthPage {
         this.form.addEventListener('submit', (e) => {
             e.preventDefault();
             if (this.validateForm()) {
-                this.submitForm();
+                // Если валидация прошла успешно, отправляем форму
+                this.form.submit();
             }
         });
 
@@ -207,40 +208,6 @@ class AuthPage {
                 NotificationManager.show(`${provider} authentication is not available yet`, 'info');
             });
         });
-    }
-
-    async submitForm() {
-        const formType = this.form.getAttribute('data-form-type'); // 'signin' or 'signup'
-        try {
-            this.form.classList.add('form-submitting');
-            ChefShare.LoadingSpinner.show();
-
-            const formData = new FormData(this.form);
-            const data = Object.fromEntries(formData.entries());
-
-            const response = await fetch(`/auth/${formType}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            });
-
-            if (response.ok) {
-                NotificationManager.show(formType === 'signin' ? 'Successfully logged in!' : 'Successfully registered!', 'success');
-                setTimeout(() => {
-                    window.location.href = '/profile'; // Redirect after success
-                }, 1000);
-            } else {
-                const error = await response.json();
-                NotificationManager.show(error.message || `${formType === 'signin' ? 'Login' : 'Registration'} failed`, 'error');
-            }
-        } catch (error) {
-            NotificationManager.show(`${formType === 'signin' ? 'Login' : 'Registration'} failed: ${error.message}`, 'error');
-        } finally {
-            this.form.classList.remove('form-submitting');
-            ChefShare.LoadingSpinner.hide();
-        }
     }
 }
 
