@@ -7,8 +7,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import uz.pdp.project.dto.PostDTO;
 import uz.pdp.project.dto.ResponseMessage;
+import uz.pdp.project.entity.Category;
 import uz.pdp.project.entity.Post;
 import uz.pdp.project.entity.User;
+import uz.pdp.project.repository.CategoryRepository;
 import uz.pdp.project.repository.PostRepository;
 
 import java.time.LocalDateTime;
@@ -19,14 +21,21 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
+    private final CategoryRepository categoryRepository;
 
     public ResponseEntity<?> addPost(PostDTO postDTO) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<Category> byName = categoryRepository.findByName(postDTO.getCategory());
+        if (byName.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ResponseMessage(false,"category is null",null));
+        }
         Post post = Post
                 .builder()
                 .title(postDTO.getTitle())
                 .content(postDTO.getContent())
-                .category(postDTO.getCategory())
+                .category(byName.get())
                 .createdAt(LocalDateTime.now())
                 .author(user)
                 .build();
@@ -36,7 +45,7 @@ public class PostService {
         return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseMessage(true,"created",post));
     }
 
-    public ResponseEntity<?> deletePost(Long postId) {
+    public ResponseEntity<?> deletePost(Integer postId) {
         Optional<Post> byId = postRepository.findById(postId);
         if (byId.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseMessage(false,"not found",null));
@@ -46,7 +55,7 @@ public class PostService {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ResponseMessage(true,"deleted",post));
     }
 
-    public ResponseEntity<?> getPostById(Long postId) {
+    public ResponseEntity<?> getPostById(Integer postId) {
         Optional<Post> byId = postRepository.findById(postId);
         if (byId.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseMessage(false,"not found",null));
@@ -54,14 +63,13 @@ public class PostService {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(true,"found",byId));
     }
 
-    public ResponseEntity<?> getPost(PostDTO postDTO) {
+    public ResponseEntity<?> getPost() {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<Post> allByUserId = postRepository.findAllByUserId(user.getId());
-        if (allByUserId.isEmpty()) {
+        Optional<List<Post>> allByAuthorId = postRepository.findAllByAuthorId(user.getId());
+        if (allByAuthorId.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseMessage(false,"not found",null));
         }
-
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(true,"found",allByUserId));
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(true,"found",allByAuthorId.get()));
     }
 
 

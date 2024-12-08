@@ -11,5 +11,5 @@ import uz.pdp.project.entity.Category;
 public class PostDTO {
     private String title;
     private String content;
-    private Category category;
+    private String category;
 }
