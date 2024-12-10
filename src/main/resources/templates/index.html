@@ -27,7 +27,10 @@
                 </div>
                 <div class="nav-buttons">
                     <button class="nav-btn active" title="Главная"><i class="fas fa-home"></i></button>
-                    <button class="nav-btn" title="Добавить рецепт"><i class="fas fa-plus-square"></i></button>
+    <button class="add-recipe-btn" th:data-user-role="${userRole}">
+    <i class="fas fa-plus"></i>
+    Добавить рецепт
+</button>
                     <button class="nav-btn notifications-button" title="Уведомления"><i class="fas fa-bell"></i></button>
                     <a href="/profile" class="nav-btn" title="Профиль">
                         <img src="https://cdn-icons-png.flaticon.com/512/1946/1946429.png" alt="Profile" class="profile-icon">
@@ -44,7 +47,9 @@
                 </div>
                 <ul class="mobile-menu-items">
                     <li><a href="#"><i class="fas fa-home"></i> Главная</a></li>
-                    <li><a href="#"><i class="fas fa-plus-square"></i> Добавить рецепт</a></li>
+<button class="nav-btn" title="Добавить рецепт" th:data-user-role="${userRole}">
+    <i class="fas fa-plus"></i>
+</button>
                     <li><button class="notifications-button"><i class="fas fa-bell"></i> Уведомления</button></li>
                     <li><a href="profile.html"><i class="fas fa-user"></i> Профиль</a></li>
                 </ul>
@@ -158,6 +163,7 @@
         </div>
     </div>
 </div>
+    <script src="/js/root.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
     <script src="js/script.js"></script>

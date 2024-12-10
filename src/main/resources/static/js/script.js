@@ -59,6 +59,58 @@ const mockData = {
 
 let modal, addRecipeBtn, closeModalBtn, recipeForm, postsContainer, topChefsContainer;
 
+function showConfirmation(message, onConfirm, onCancel) {
+    const modal = document.createElement('div');
+    modal.className = 'custom-confirm-modal';
+    modal.innerHTML = `
+        <div class="custom-confirm-content">
+            <div class="custom-confirm-header">
+                <h2><i class="fas fa-utensils"></i> Стать поваром</h2>
+            </div>
+            <div class="custom-confirm-body">
+                <p>${message}</p>
+            </div>
+            <div class="custom-confirm-footer">
+                <button class="cancel-btn">Остаться</button>
+                <button class="confirm-btn">Перейти в профиль</button>
+            </div>
+        </div>
+    `;
+
+    modal.style.opacity = '0';
+    document.body.appendChild(modal);
+    setTimeout(() => modal.style.opacity = '1', 50);
+
+    const confirmBtn = modal.querySelector('.confirm-btn');
+    const cancelBtn = modal.querySelector('.cancel-btn');
+
+    confirmBtn.addEventListener('click', () => {
+        modal.style.opacity = '0';
+        setTimeout(() => {
+            modal.remove();
+            onConfirm?.();
+        }, 300);
+    });
+
+    cancelBtn.addEventListener('click', () => {
+        modal.style.opacity = '0';
+        setTimeout(() => {
+            modal.remove();
+            onCancel?.();
+        }, 300);
+    });
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.remove();
+                onCancel?.();
+            }, 300);
+        }
+    });
+}
+
 // Проверка и установка темы при загрузке
 function setupTheme() {
     const savedTheme = localStorage.getItem('darkTheme');
@@ -244,83 +296,63 @@ function renderRecipes() {
 
 // Инициализация обработчиков событий
 function initializeEventListeners() {
-    // Модальное окно для создания рецепта
+    // Находим модальное окно и кнопку добавления рецепта
     const modal = document.getElementById('createRecipeModal');
-    const addRecipeBtn = document.querySelector('.nav-btn[title="Добавить рецепт"]');
+    const addRecipeBtn = document.querySelector('.add-recipe-btn');
+    
+    if (!modal || !addRecipeBtn) return;
+    
     const closeBtn = modal.querySelector('.close');
 
-    // Открыть модальное окно
-    addRecipeBtn.addEventListener('click', () => {
-        modal.style.display = 'block';
+    // Открыть модальное окно с проверкой роли
+    addRecipeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const userRole = addRecipeBtn.getAttribute('data-user-role');
+        
+        if (userRole !== 'ROLE_CHEF') {
+            showConfirmation(
+                'Для публикации рецептов необходимо стать поваром. Хотите перейти в профиль и получить статус повара?',
+                () => {
+                    LoaderManager.show();
+                    window.location.href = '/profile';
+                },
+                () => {
+                    NotificationManager.info('Вы можете стать поваром в любое время в своем профиле');
+                }
+            );
+        } else {
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Предотвращаем прокрутку фона
+        }
     });
 
     // Закрыть модальное окно при клике на крестик
-    closeBtn.addEventListener('click', () => {
-        modal.style.display = 'none';
-    });
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+            document.body.style.overflow = ''; // Возвращаем прокрутку
+        });
+    }
 
     // Закрыть модальное окно при клике вне его
     window.addEventListener('click', (event) => {
         if (event.target === modal) {
             modal.style.display = 'none';
+            document.body.style.overflow = ''; // Возвращаем прокрутку
         }
     });
 
     // Обработка формы создания рецепта
     const recipeForm = document.getElementById('recipeForm');
-    const ingredientsList = document.querySelector('.ingredients-list');
-    const stepsList = document.querySelector('.steps-list');
-    const addIngredientBtn = document.querySelector('.add-ingredient');
-    const addStepBtn = document.querySelector('.add-step');
-
-    // Добавить ингредиент
-    addIngredientBtn.addEventListener('click', () => {
-        const ingredientItem = document.createElement('div');
-        ingredientItem.className = 'ingredient-item';
-        ingredientItem.innerHTML = `
-            <input type="text" placeholder="Ингредиент">
-            <input type="text" placeholder="Количество">
-            <button type="button" class="remove-ingredient"><i class="fas fa-minus"></i></button>
-        `;
-        ingredientsList.appendChild(ingredientItem);
-    });
-
-    // Добавить шаг
-    addStepBtn.addEventListener('click', () => {
-        const stepItem = document.createElement('div');
-        stepItem.className = 'step-item';
-        stepItem.innerHTML = `
-            <textarea placeholder="Опишите шаг"></textarea>
-            <button type="button" class="remove-step"><i class="fas fa-minus"></i></button>
-        `;
-        stepsList.appendChild(stepItem);
-    });
-
-    // Удаление ингредиентов и шагов
-    document.addEventListener('click', (e) => {
-        if (e.target.closest('.remove-ingredient')) {
-            e.target.closest('.ingredient-item').remove();
-        }
-        if (e.target.closest('.remove-step')) {
-            e.target.closest('.step-item').remove();
-        }
-    });
-
-    // Предварительный просмотр изображения
-    const imageInput = document.getElementById('recipeImage');
-    const imagePreview = document.querySelector('.image-preview');
-
-    imageInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                imagePreview.style.display = 'block';
-                imagePreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
-            };
-            reader.readAsDataURL(file);
-        }
-    });
+    if (recipeForm) {
+        recipeForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Здесь будет логика отправки формы
+            NotificationManager.success('Рецепт успешно создан!');
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        });
+    }
 }
 
 // Mobile Menu Toggle
@@ -426,3 +458,149 @@ function toggleSidebar() {
   const sidebar = document.querySelector('.sidebar');
   sidebar.classList.toggle('active');
 }
+
+// Функции для отображения/скрытия индикатора загрузки
+function showLoader() {
+    const loader = document.createElement('div');
+    loader.className = 'custom-loader-overlay';
+    loader.style.pointerEvents = 'all';
+    loader.innerHTML = `
+        <div class="custom-loader">
+            <div class="loader-spinner"></div>
+            <div class="loader-text">Пожалуйста, подождите...</div>
+        </div>
+    `;
+    document.body.appendChild(loader);
+    document.body.style.overflow = 'hidden';
+}
+
+function hideLoader() {
+    const loader = document.querySelector('.custom-loader-overlay');
+    if (loader) {
+        loader.classList.add('fade-out');
+        setTimeout(() => {
+            loader.remove();
+            document.body.style.overflow = '';
+        }, 300);
+    }
+}
+
+// Обработка форм авторизации и регистрации
+function setupAuthForms() {
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            showLoader();
+            // Имитация задержки для демонстрации лоадера
+            setTimeout(() => {
+                loginForm.submit();
+            }, 500);
+        });
+    }
+
+    if (registerForm) {
+        registerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            showLoader();
+            // Имитация задержки для демонстрации лоадера
+            setTimeout(() => {
+                registerForm.submit();
+            }, 500);
+        });
+    }
+}
+
+// Обновляем функцию setupNavigation
+function setupNavigation() {
+    const navButtons = document.querySelectorAll('.nav-buttons .nav-btn');
+    
+    navButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            const title = button.getAttribute('title');
+            
+            if (title === 'Уведомления') {
+                button.classList.toggle('active');
+                e.stopPropagation();
+                return;
+            }
+
+            e.preventDefault();
+            showLoader();
+            
+            switch(title) {
+                case 'Главная':
+                    window.location.href = '/';
+                    break;
+                case 'Добавить рецепт':
+                    const userRole = button.getAttribute('data-user-role');
+                    if (userRole !== 'ROLE_CHEF') {
+                        hideLoader();
+                        showConfirmation(
+                            'Для публикации рецептов необходимо стать поваром. Хотите перейти в профиль и получить статус повара?',
+                            () => {
+                                showLoader();
+                                window.location.href = '/profile';
+                            },
+                            () => {
+                                NotificationManager.info('Вы можете стать поваром в любое время в своем профиле');
+                            }
+                        );
+                    } else {
+                        window.location.href = '/create';
+                    }
+                    break;
+                case 'Профиль':
+                    window.location.href = '/profile';
+                    break;
+            }
+        });
+    });
+}
+
+// Добавляем глобальные обработчики навигации
+document.addEventListener('DOMContentLoaded', () => {
+    // Обработка всех ссылок
+    document.addEventListener('click', (e) => {
+        const link = e.target.closest('a');
+        if (link && 
+            !link.hasAttribute('data-no-loader') && 
+            link.href && 
+            link.href.startsWith(window.location.origin) &&
+            !link.href.includes('#')) {
+            e.preventDefault();
+            showLoader();
+            window.location.href = link.href;
+        }
+    });
+
+    // Обработка форм
+    document.addEventListener('submit', (e) => {
+        const form = e.target;
+        if (!form.hasAttribute('data-no-loader')) {
+            showLoader();
+        }
+    });
+
+    // Обработка навигации браузера
+    window.addEventListener('popstate', () => {
+        showLoader();
+    });
+
+    // Обработка логотипа
+    const logo = document.querySelector('.logo');
+    if (logo) {
+        logo.addEventListener('click', (e) => {
+            e.preventDefault();
+            showLoader();
+            window.location.href = '/';
+        });
+    }
+
+    // Скрываем лоадер при полной загрузке страницы
+    window.addEventListener('load', () => {
+        hideLoader();
+    });
+});

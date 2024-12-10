@@ -45,7 +45,6 @@ public class UserService implements UserDetailsService {
                 .email(signUpDTO.getEmail())
                 .password(passwordEncoder.encode(signUpDTO.getPassword()))
                 .role("USER")
-                .enabled(true)
                 .build();
 
         return userRepository.save(user);

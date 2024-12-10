@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3565/3565418.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
 </head>
 <body>
     <header>
@@ -337,12 +338,13 @@
     <div class="modal-content">
         <div class="modal-header">
             <h2><i class="fas fa-user-circle"></i> Изменить фото профиля</h2>
-            <button class="close-btn">
-                <i class="fas fa-times"></i>
-            </button>
+            <button class="close-btn"><i class="fas fa-times"></i></button>
         </div>
         <div class="modal-body">
             <div class="avatar-upload">
+                <div class="cropper-container" style="display: none;">
+                    <img id="cropperImage" src="" alt="Image to crop">
+                </div>
                 <div class="avatar-preview">
                     <img id="avatarPreview" src="https://cdn-icons-png.flaticon.com/512/1946/1946429.png" alt="Preview">
                 </div>
@@ -350,6 +352,9 @@
                     <input type="file" id="avatarInput" accept="image/*" style="display: none;">
                     <button class="upload-btn">
                         <i class="fas fa-upload"></i> Выбрать фото
+                    </button>
+                    <button class="crop-btn" style="display: none;">
+                        <i class="fas fa-crop"></i> Обрезать
                     </button>
                     <button class="reset-btn">
                         <i class="fas fa-undo"></i> Сбросить
@@ -359,12 +364,10 @@
         </div>
     </div>
 </div>
+    <script src="/js/root.js"></script>
     <div id="notifications-container" class="notifications-fixed-container"></div>
-
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-    <script src="/js/notification-manager.js"></script>
-    <script src="/js/theme-manager.js"></script>
     <script src="/js/profile.js"></script>
 
 </body>

@@ -40,11 +40,22 @@ class AuthPage {
         const data = this.collectFormData();
 
         if (url.includes("/signup")) {
-          if (!this.validatePassword(data.password)) {
+          // Get password inputs
+          const password = document.getElementById('password').value;
+          const confirmPassword = document.getElementById('confirmPassword').value;
+
+          // Check if passwords match first
+          if (password !== confirmPassword) {
+            this.showError("Пароли не совпадают");
             return;
           }
-          if (data.password !== data.confirmPassword) {
-            this.showError("Пароли не совпадают");
+
+          // Then check password strength
+          const passwordValidation = this.calculatePasswordStrength(password);
+          if (!passwordValidation.isValid) {
+            passwordValidation.failedChecks.forEach(check => {
+              window.ChefShare.Toast.show(check, 'warning');
+            });
             return;
           }
         }
@@ -90,112 +101,85 @@ class AuthPage {
     return formData;
   }
   submitForm(url, data) {
-    // Validate data structure before sending
+    window.ChefShare.LoaderManager.show();
     const isSignUpForm = url.includes("/signup");
 
+    // Validation checks...
     if (isSignUpForm) {
-      // Sign-up specific validation
-      const requiredSignUpFields = [
-        "email",
-        "password",
-        "username",
-        "firstName",
-      ];
-      const missingFields = requiredSignUpFields.filter(
-        (field) => !data[field]
-      );
+        const requiredSignUpFields = ["email", "password", "username", "firstName"];
+        const missingFields = requiredSignUpFields.filter((field) => !data[field]);
 
-      if (missingFields.length > 0) {
-        console.error("Invalid sign-up payload: Missing fields", missingFields);
-        this.showError(
-          `Пожалуйста, заполните обязательные поля: ${missingFields.join(", ")}`
-        );
-        return;
-      }
+        if (missingFields.length > 0) {
+            setTimeout(() => {
+                window.ChefShare.LoaderManager.hide();
+                setTimeout(() => {
+                    this.showError(`Пожалуйста, заполните обязательные поля: ${missingFields.join(", ")}`);
+                }, 1000);
+            }, 1500);
+            return;
+        }
     } else {
-      // Sign-in validation
-      if (!data || !data.email || !data.password) {
-        console.error(
-          "Invalid sign-in payload: Missing email or password",
-          data
-        );
-        this.showError("Пожалуйста, заполните email и пароль");
-        return;
-      }
+        if (!data || !data.email || !data.password) {
+            setTimeout(() => {
+                window.ChefShare.LoaderManager.hide();
+                setTimeout(() => {
+                    this.showError("Пожалуйста, заполните email и пароль");
+                }, 1000);
+            }, 1500);
+            return;
+        }
     }
 
-    // Detailed payload logging with sensitive information masked
-    console.log(
-      "Sending authentication payload:",
-      JSON.stringify({
-        email: data.email,
-        passwordLength: data.password
-          ? `${data.password.length} characters`
-          : "null",
-        ...(isSignUpForm ? { username: data.username } : {}),
-      })
-    );
-
-    // Prepare the fetch request with comprehensive error handling
     fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(data),
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+        },
+        body: JSON.stringify(data),
     })
-      .then((response) => {
-        // Check if the response is OK (status in the range 200-299)
-        if (!response.ok) {
-          return response.json().then((err) => {
-            // Use the 'details' field from the error response
-            this.showError(err.details || "Ошибка при регистрации");
-            throw new Error(err.details || "Ошибка при регистрации");
-          });
-        }
-        return response.json();
-      })
-      .then((result) => {
-        console.log("Signin result:", result);
-
-        // Comprehensive result handling
-        if (result.error) {
-          // Handle different types of errors
-          const errorMessage =
-            result.message || result.details || "Неизвестная ошибка входа";
-          this.showError(errorMessage);
-        } else {
-          this.showSuccess(result.message || "Регистрация успешна!");
-          setTimeout(() => {
-            window.location.href = result.redirect || "/";
-          }, 1500);
-        }
-      })
-      .catch((error) => {
-        // Check if the error message is already shown
-        if (
-          !error.message.includes("Username is already taken") &&
-          !error.message.includes("User with this email already exists")
-        ) {
-          console.error("Signin error details:", {
-            name: error.name,
-            message: error.message,
-            stack: error.stack,
-          });
-
-          // User-friendly error messages
-          const userFriendlyMessage =
-            error.name === "TypeError"
-              ? "Проблема с подключением к серверу"
-              : error.name === "SyntaxError"
-              ? "Получен некорректный ответ от сервера"
-              : "Произошла ошибка при входе";
-
-          this.showError(userFriendlyMessage);
-        }
-      });
-  }
+        .then((response) => {
+            if (!response.ok) {
+                return response.json().then((err) => {
+                    setTimeout(() => {
+                        window.ChefShare.LoaderManager.hide();
+                        setTimeout(() => {
+                            this.showError(err.details || "Ошибка при регистрации");
+                        }, 1000);
+                    }, 1500);
+                    throw new Error(err.details || "Ошибка при регистрации");
+                });
+            }
+            return response.json();
+        })
+        .then((result) => {
+            setTimeout(() => {
+                window.ChefShare.LoaderManager.hide();
+                if (result.error) {
+                    setTimeout(() => {
+                        const errorMessage = result.message || result.details || "Неизвестная ошибка входа";
+                        this.showError(errorMessage);
+                    }, 1000);
+                } else {
+                    setTimeout(() => {
+                        this.showSuccess(result.message || "Вход выполнен успешно!");
+                        setTimeout(() => {
+                            window.location.href = result.redirect || "/";
+                        }, 3000);
+                    }, 1000);
+                }
+            }, 1500);
+        })
+        .catch((error) => {
+            setTimeout(() => {
+                window.ChefShare.LoaderManager.hide();
+                setTimeout(() => {
+                    console.error("Auth error:", error);
+                    this.showError("Произошла ошибка при отправке формы");
+                }, 1000);
+            }, 1500);
+        });
+}
 
   validateForm() {
     let isValid = true;
@@ -358,37 +342,12 @@ class AuthPage {
   }
 
   showError(message) {
-    NotificationManager.show(message, "error");
+    window.ChefShare.Toast.show(message, 'error');
   }
 
   showSuccess(message) {
-    NotificationManager.show(message, "success");
+    window.ChefShare.Toast.show(message, 'success');
   }
-}
-
-function validatePassword(password) {
-    const requirements = {
-        length: password.length >= 8,
-        uppercase: /[A-Z]/.test(password),
-        lowercase: /[a-z]/.test(password),
-        special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
-    };
-
-    // Show notifications for each requirement
-    if (!requirements.length) {
-        NotificationManager.warning('Пароль должен содержать минимум 8 символов');
-    }
-    if (!requirements.uppercase) {
-        NotificationManager.warning('Пароль должен содержать заглавные буквы');
-    }
-    if (!requirements.lowercase) {
-        NotificationManager.warning('Пароль должен содержать строчные буквы');
-    }
-    if (!requirements.special) {
-        NotificationManager.warning('Пароль должен содержать специальные символы');
-    }
-
-    return Object.values(requirements).every(req => req === true);
 }
 
 // Initialize auth page functionality

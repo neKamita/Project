@@ -1,23 +1,13 @@
 // Функции для отображения/скрытия индикатора загрузки
 function showLoader() {
-    const loader = document.createElement('div');
-    loader.className = 'custom-loader-overlay';
-    loader.innerHTML = `
-        <div class="custom-loader">
-            <div class="loader-spinner"></div>
-            <div class="loader-text">Пожалуйста, подождите...</div>
-        </div>
-    `;
-    document.body.appendChild(loader);
+    window.ChefShare.LoaderManager.show();
 }
 
 function hideLoader() {
-    const loader = document.querySelector('.custom-loader-overlay');
-    if (loader) {
-        loader.classList.add('fade-out');
-        setTimeout(() => loader.remove(), 300);
-    }
+    window.ChefShare.LoaderManager.hide();
 }
+
+
 
 // Демо-данные для рецептов пользователя
 const userRecipes = [
@@ -54,7 +44,7 @@ function setupRecipeInteractions() {
         const likeBtn = card.querySelector('.like-btn');
         if (likeBtn) {
             likeBtn.addEventListener('click', () => {
-                NotificationManager.success('Рецепт добавлен в избранное');
+                showNotification('Рецепт добавлен в избранное');
             });
         }
 
@@ -62,7 +52,7 @@ function setupRecipeInteractions() {
         const saveBtn = card.querySelector('.save-btn');
         if (saveBtn) {
             saveBtn.addEventListener('click', () => {
-                NotificationManager.success('Рецепт сохранен в коллекцию');
+                showNotification('Рецепт сохранен в коллекцию');
             });
         }
 
@@ -70,7 +60,7 @@ function setupRecipeInteractions() {
         const shareBtn = card.querySelector('.share-btn');
         if (shareBtn) {
             shareBtn.addEventListener('click', () => {
-                NotificationManager.info('Ссылка скопирована в буфер обмена');
+                showNotification('Ссылка скопирована в буфер обмена');
             });
         }
     });
@@ -135,7 +125,7 @@ function renderRecipes() {
         }
     } catch (error) {
         console.error('Error rendering recipes:', error);
-        NotificationManager.error('Ошибка при загрузке рецептов');
+        showNotification('Ошибка при загрузке рецептов');
         grid.innerHTML = '<div class="error-message">Не удалось загрузить рецепты. Пожалуйста, попробуйте позже.</div>';
     }
 }
@@ -144,7 +134,7 @@ function renderRecipes() {
 function editRecipe(recipeId) {
     const recipe = userRecipes.find(r => r.id === recipeId);
     if (recipe) {
-        NotificationManager.info('Редактирование рецепта будет доступно в ближайшее время');
+        showNotification('Редактирование рецепта будет доступно в ближайшее время');
     }
 }
 
@@ -156,11 +146,11 @@ function deleteRecipe(recipeId) {
             if (index !== -1) {
                 userRecipes.splice(index, 1);
                 renderRecipes();
-                NotificationManager.success('Рецепт успешно удален');
+                showNotification('Рецепт успешно удален');
             }
         } catch (error) {
             console.error('Error deleting recipe:', error);
-            NotificationManager.error('Ошибка при удалении рецепта');
+            showNotification('Ошибка при удалении рецепта');
         }
     }
 }
@@ -172,18 +162,18 @@ function toggleLike(recipeId) {
             // В реальном приложении здесь будет API-запрос
             recipe.likes = recipe.likes + 1;
             renderRecipes();
-            NotificationManager.success('Спасибо за вашу оценку!');
+            showNotification('Спасибо за вашу оценку!');
         }
     } catch (error) {
         console.error('Error toggling like:', error);
-        NotificationManager.error('Не удалось поставить лайк');
+        showNotification('Не удалось поставить лайк');
     }
 }
 
 function showComments(recipeId) {
     const recipe = userRecipes.find(r => r.id === recipeId);
     if (recipe) {
-        NotificationManager.info('Комментарии будут доступны в ближайшее время');
+        showNotification('Комментарии будут доступны в ближайшее время');
     }
 }
 
@@ -219,39 +209,65 @@ function setupImageUpload() {
 
 // Функция для обработки загрузки изображений
 function handleImageUpload(type, file) {
-    console.log('Handling image upload:', type); // Для отладки
+    console.log('Handling image upload:', type);
+    
     // Проверка типа и размера файла
     const validImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
     const maxSize = 5 * 1024 * 1024; // 5MB
+    const maxGifSize = 10 * 1024 * 1024; // 10MB для GIF
 
     if (!validImageTypes.includes(file.type)) {
-        NotificationManager.error('Пожалуйста, выберите изображение в формате JPEG, PNG или GIF');
+        showNotification('Пожалуйста, выберите изображение в формате JPEG, PNG или GIF', 'error');
         return;
     }
 
-    if (file.size > maxSize) {
-        NotificationManager.error('Размер файла не должен превышать 5MB');
+    // Проверка размера в зависимости от типа файла
+    if (file.type === 'image/gif') {
+        if (file.size > maxGifSize) {
+            showNotification('Размер GIF файла не должен превышать 10MB', 'error');
+            return;
+        }
+    } else if (file.size > maxSize) {
+        showNotification('Размер файла не должен превышать 5MB', 'error');
         return;
     }
 
     const reader = new FileReader();
     
     reader.onload = function(e) {
-        console.log('Image loaded:', type); // Для отладки
-        if (type === 'avatar') {
-            const avatarImg = document.querySelector('.profile-avatar img');
-            avatarImg.src = e.target.result;
-            NotificationManager.success('Аватар успешно обновлен!');
-        } else if (type === 'cover') {
-            const coverEl = document.querySelector('.profile-cover');
-            coverEl.style.backgroundImage = `url(${e.target.result})`;
-            NotificationManager.success('Обложка профиля успешно обновлена!');
-        }
+        // Проверяем, что файл действительно изображение
+        const img = new Image();
+        img.onload = function() {
+            if (type === 'avatar') {
+                // Проверяем минимальные размеры для аватара
+                if (img.width < 200 || img.height < 200) {
+                    showNotification('Изображение должно быть не менее 200x200 пикселей', 'error');
+                    return;
+                }
+                const avatarImg = document.querySelector('.profile-avatar img');
+                if (avatarImg) {
+                    avatarImg.src = e.target.result;
+                    showNotification('Аватар успешно обновлен!', 'success');
+                }
+            } else if (type === 'cover') {
+                const coverEl = document.querySelector('.profile-cover');
+                if (coverEl) {
+                    coverEl.style.backgroundImage = `url(${e.target.result})`;
+                    showNotification('Обложка профиля успешно обновлена!', 'success');
+                }
+            }
+        };
+        
+        img.onerror = function() {
+            showNotification('Выбранный файл не является изображением', 'error');
+        };
+        
+        img.src = e.target.result;
     };
 
     reader.onerror = function() {
-        console.error('Error loading image'); // Для отладки
-        NotificationManager.error('Произошла ошибка при загрузке изображения');
+        console.error('Error loading image');
+        showNotification('Произошла ошибка при загрузке изображения', 'error');
     };
 
     reader.readAsDataURL(file);
@@ -420,37 +436,37 @@ function setupBecomeChef() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                NotificationManager.success(data.message);
+                showNotification(data.message);
                 setTimeout(() => {
                     window.location.href = '/profile';
                 }, 1000);
             } else {
                 hideLoader();
-                NotificationManager.error('Произошла ошибка при смене роли');
+                showNotification('Произошла ошибка при смене роли');
             }
         })
         .catch(error => {
             hideLoader();
             console.error('Error:', error);
-            NotificationManager.error('Произошла ошибка при смене роли');
+            showNotification('Произошла ошибка при смене роли');
         });
     }
 }
 
 // Функция для отображения уведомлений
 function showNotification(message, type = 'success') {
-    NotificationManager.show(message, type);
+    window.ChefShare.Toast.show(message, type);
 }
 
 // Функция для обработки ошибок
 function handleError(error) {
     console.error('Error:', error);
-    NotificationManager.error(error.message || 'An error occurred');
+    showNotification(error.message || 'An error occurred');
 }
 
 // Функция для обработки успеха
 function handleSuccess(message) {
-    NotificationManager.success(message);
+    showNotification(message);
 }
 
 // Настройка модального окна
@@ -528,7 +544,7 @@ function setupProfileModal() {
             .then(data => {
                 if (data.success) {
                     closeModal();
-                    NotificationManager.success('Профиль успешно обновлен');
+                    showNotification('Профиль успешно обновлен');
                     // Обновляем значения на странице без перезагрузки
                     document.querySelector('.profile-name h1').innerHTML = 
                         `<span>${data.firstName}</span> <span>${data.lastName}</span>`;
@@ -547,12 +563,12 @@ function setupProfileModal() {
                         form.querySelector('textarea[name="about"]').value = data.about;
                     }
                 } else {
-                    NotificationManager.error(data.message || 'Не удалось обновить профиль');
+                    showNotification(data.message || 'Не удалось обновить профиль');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                NotificationManager.error('Произошла ошибка при обновлении профиля');
+                showNotification('Произошла ошибка при обновлении профиля');
             });
         });
     }
@@ -586,7 +602,7 @@ function applyGradient(element) {
     profileCover.style.background = gradient;
     localStorage.setItem('profileCoverGradient', gradient);
     document.getElementById('changeCoverModal').classList.remove('active');
-    NotificationManager.success('Градиент успешно применен');
+    showNotification('Градиент успешно применен');
 }
 
 // Функция для изменения обложки профиля
@@ -667,13 +683,13 @@ function setupCoverChange() {
             if (!file) return;
 
             if (file.size > 5 * 1024 * 1024) { // 5MB limit
-                NotificationManager.error('Размер файла не должен превышать 5MB');
+                showNotification('Размер файла не должен превышать 5MB');
                 coverImageInput.value = '';
                 return;
             }
 
             if (!file.type.startsWith('image/')) {
-                NotificationManager.error('Пожалуйста, выберите изображение');
+                showNotification('Пожалуйста, выберите изображение');
                 coverImageInput.value = '';
                 return;
             }
@@ -685,7 +701,7 @@ function setupCoverChange() {
                 profileCover.style.background = 'none';
                 profileCover.style.backgroundImage = `url(${event.target.result})`;
                 changeCoverModal.classList.remove('active');
-                NotificationManager.success('Обложка профиля успешно обновлена');
+                showNotification('Обложка профиля успешно обновлена');
             };
             reader.readAsDataURL(file);
         });
@@ -699,7 +715,7 @@ function setupCoverChange() {
             localStorage.removeItem('profileCoverImage');
             profileCover.style.background = gradient;
             changeCoverModal.classList.remove('active');
-            NotificationManager.success('Градиент успешно применен');
+            showNotification('Градиент успешно применен');
         });
     });
     
@@ -780,14 +796,14 @@ function setupAvatarChange() {
 
         // Проверка размера файла
         if (file.size > 5 * 1024 * 1024) {
-            NotificationManager.error('Размер файла не должен превышать 5MB');
+            showNotification('Размер файла не должен превышать 5MB');
             avatarInput.value = '';
             return;
         }
 
         // Проверка типа файла
         if (!file.type.startsWith('image/')) {
-            NotificationManager.error('Пожалуйста, выберите изображение');
+            showNotification('Пожалуйста, выберите изображение');
             avatarInput.value = '';
             return;
         }
@@ -797,7 +813,7 @@ function setupAvatarChange() {
             const img = new Image();
             img.onload = () => {
                 if (img.width < 200 || img.height < 200) {
-                    NotificationManager.error('Изображение должно быть не менее 200x200 пикселей');
+                    showNotification('Изображение должно быть не менее 200x200 пикселей');
                     avatarInput.value = '';
                     return;
                 }
@@ -812,7 +828,7 @@ function setupAvatarChange() {
                 }, 200);
 
                 changeAvatarModal.classList.remove('active');
-                NotificationManager.success('Фото профиля успешно обновлено');
+                showNotification('Фото профиля успешно обновлено');
             };
             img.src = event.target.result;
         };
@@ -833,7 +849,7 @@ function resetAvatar() {
     }
 
     localStorage.removeItem('profileAvatar');
-    NotificationManager.success('Фото профиля сброшено');
+    showNotification('Фото профиля сброшено');
 }
 
 function updateProfile(data) {
@@ -898,13 +914,13 @@ function setupProfileNavigation() {
                         
                         if (changePasswordBtn) {
                             changePasswordBtn.addEventListener('click', () => {
-                                NotificationManager.info('Функция изменения пароля будет доступна в ближайшее время');
+                                showNotification('Функция изменения пароля будет доступна в ближайшее время');
                             });
                         }
                         
                         if (changeLangBtn) {
                             changeLangBtn.addEventListener('click', () => {
-                                NotificationManager.info('Функция смены языка будет доступна в ближайшее время');
+                                showNotification('Функция смены языка будет доступна в ближайшее время');
                             });
                         }
                     } else {
