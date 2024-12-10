@@ -1,3 +1,24 @@
+// Функции для отображения/скрытия индикатора загрузки
+function showLoader() {
+    const loader = document.createElement('div');
+    loader.className = 'custom-loader-overlay';
+    loader.innerHTML = `
+        <div class="custom-loader">
+            <div class="loader-spinner"></div>
+            <div class="loader-text">Пожалуйста, подождите...</div>
+        </div>
+    `;
+    document.body.appendChild(loader);
+}
+
+function hideLoader() {
+    const loader = document.querySelector('.custom-loader-overlay');
+    if (loader) {
+        loader.classList.add('fade-out');
+        setTimeout(() => loader.remove(), 300);
+    }
+}
+
 // Демо-данные для рецептов пользователя
 const userRecipes = [
     {
@@ -62,7 +83,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setupBecomeChef();
     setupAvatarChange();
     setupCoverChange();
-    setupImageUpload();
     setupNotifications();
     setupNavigation();
 });
@@ -384,9 +404,9 @@ function setupBecomeChef() {
     if (!becomeChefBtn) return;
 
     becomeChefBtn.addEventListener('click', () => {
-        if (confirm('Вы уверены, что хотите изменить свою роль?')) {
+        showConfirmation('Вы уверены, что хотите изменить свою роль?', () => {
             toggleChefRole();
-        }
+        });
     });
 
     function toggleChefRole() {
@@ -706,12 +726,17 @@ function setupCoverChange() {
 
 // Функция для изменения аватара профиля
 function setupAvatarChange() {
+    const profileAvatar = document.querySelector('.profile-avatar img');
     const editAvatarBtn = document.querySelector('.edit-avatar');
+    const changeAvatarModal = document.getElementById('changeAvatarModal');
     const avatarInput = document.getElementById('avatarInput');
     const avatarPreview = document.getElementById('avatarPreview');
-    const changeAvatarModal = document.getElementById('changeAvatarModal');
-    const profileAvatar = document.querySelector('.profile-avatar img');
     const defaultAvatarUrl = 'https://cdn-icons-png.flaticon.com/512/1946/1946429.png';
+    const uploadBtn = changeAvatarModal?.querySelector('.upload-btn');
+    const resetBtn = changeAvatarModal?.querySelector('.reset-btn');
+    const closeBtn = changeAvatarModal?.querySelector('.close-btn');
+
+    if (!profileAvatar || !editAvatarBtn || !changeAvatarModal || !avatarInput) return;
 
     // Загружаем сохраненный аватар
     const savedAvatar = localStorage.getItem('profileAvatar');
@@ -721,106 +746,94 @@ function setupAvatarChange() {
     }
 
     // Открытие модального окна
-    if (editAvatarBtn) {
-        editAvatarBtn.addEventListener('click', () => {
-            changeAvatarModal.classList.add('active');
-            if (avatarPreview) avatarPreview.src = profileAvatar.src;
+    editAvatarBtn.addEventListener('click', () => {
+        changeAvatarModal.classList.add('active');
+        if (avatarPreview) avatarPreview.src = profileAvatar.src;
+    });
+
+    // Обработчик кнопки загрузки
+    if (uploadBtn) {
+        uploadBtn.addEventListener('click', () => {
+            avatarInput.click();
+        });
+    }
+
+    // Обработчик кнопки сброса
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            resetAvatar();
+        });
+    }
+
+    // Обработчик кнопки закрытия
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            changeAvatarModal.classList.remove('active');
+            avatarInput.value = '';
         });
     }
 
     // Обработчик выбора файла
-    if (avatarInput) {
-        avatarInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
+    avatarInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
 
-            // Проверка размера файла
-            if (file.size > 5 * 1024 * 1024) {
-                NotificationManager.error('Размер файла не должен превышать 5MB');
-                avatarInput.value = ''; // Сброс input
-                return;
-            }
+        // Проверка размера файла
+        if (file.size > 5 * 1024 * 1024) {
+            NotificationManager.error('Размер файла не должен превышать 5MB');
+            avatarInput.value = '';
+            return;
+        }
 
-            // Проверка типа файла
-            if (!file.type.startsWith('image/')) {
-                NotificationManager.error('Пожалуйста, выберите изображение');
-                avatarInput.value = '';
-                return;
-            }
+        // Проверка типа файла
+        if (!file.type.startsWith('image/')) {
+            NotificationManager.error('Пожалуйста, выберите изображение');
+            avatarInput.value = '';
+            return;
+        }
 
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                // Создаем временное изображение для проверки размеров
-                const img = new Image();
-                img.onload = () => {
-                    // Проверка минимальных размеров
-                    if (img.width < 200 || img.height < 200) {
-                        NotificationManager.error('Изображение должно быть не менее 200x200 пикселей');
-                        avatarInput.value = '';
-                        return;
-                    }
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => {
+                if (img.width < 200 || img.height < 200) {
+                    NotificationManager.error('Изображение должно быть не менее 200x200 пикселей');
+                    avatarInput.value = '';
+                    return;
+                }
 
-                    // Если все проверки пройдены, обновляем аватар
-                    if (avatarPreview) avatarPreview.src = event.target.result;
-                    profileAvatar.src = event.target.result;
-                    localStorage.setItem('profileAvatar', event.target.result);
-                    
-                    // Добавляем анимацию
-                    profileAvatar.style.transform = 'scale(0.95)';
-                    setTimeout(() => {
-                        profileAvatar.style.transform = 'scale(1)';
-                    }, 200);
+                if (avatarPreview) avatarPreview.src = event.target.result;
+                profileAvatar.src = event.target.result;
+                localStorage.setItem('profileAvatar', event.target.result);
+                
+                profileAvatar.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    profileAvatar.style.transform = 'scale(1)';
+                }, 200);
 
-                    changeAvatarModal.classList.remove('active');
-                    NotificationManager.success('Фото профиля успешно обновлено');
-                };
-                img.src = event.target.result;
+                changeAvatarModal.classList.remove('active');
+                NotificationManager.success('Фото профиля успешно обновлено');
             };
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+}
 
-            reader.onerror = () => {
-                NotificationManager.error('Ошибка при чтении файла');
-                avatarInput.value = '';
-            };
+function resetAvatar() {
+    const profileAvatar = document.querySelector('.profile-avatar img');
+    const avatarPreview = document.getElementById('avatarPreview');
+    const defaultAvatarUrl = 'https://cdn-icons-png.flaticon.com/512/1946/1946429.png';
 
-            reader.readAsDataURL(file);
-        });
+    if (profileAvatar) {
+        profileAvatar.src = defaultAvatarUrl;
+    }
+    if (avatarPreview) {
+        avatarPreview.src = defaultAvatarUrl;
     }
 
-    // Сброс аватара
-    window.resetAvatar = function() {
-        if (avatarPreview) avatarPreview.src = defaultAvatarUrl;
-        profileAvatar.src = defaultAvatarUrl;
-        localStorage.removeItem('profileAvatar');
-        
-        // Добавляем анимацию
-        profileAvatar.style.transform = 'scale(0.95)';
-        setTimeout(() => {
-            profileAvatar.style.transform = 'scale(1)';
-        }, 200);
-
-        changeAvatarModal.classList.remove('active');
-        NotificationManager.info('Фото профиля сброшено');
-        
-        // Сброс input file
-        if (avatarInput) avatarInput.value = '';
-    };
-
-    // Закрытие модального окна при клике вне его
-    changeAvatarModal.addEventListener('click', (e) => {
-        if (e.target === changeAvatarModal) {
-            changeAvatarModal.classList.remove('active');
-            // Сброс input file при закрытии
-            if (avatarInput) avatarInput.value = '';
-        }
-    });
-
-    // Закрытие по клавише Escape
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && changeAvatarModal.classList.contains('active')) {
-            changeAvatarModal.classList.remove('active');
-            if (avatarInput) avatarInput.value = '';
-        }   
-    });
+    localStorage.removeItem('profileAvatar');
+    NotificationManager.success('Фото профиля сброшено');
 }
 
 function updateProfile(data) {
@@ -926,4 +939,60 @@ function showProfileSection(section) {
             renderSettings();
         }
     }
+}
+
+function showConfirmation(message, onConfirm, onCancel) {
+    // Создаем элементы модального окна
+    const modal = document.createElement('div');
+    modal.className = 'custom-confirm-modal';
+    modal.innerHTML = `
+        <div class="custom-confirm-content">
+            <div class="custom-confirm-header">
+                <h2><i class="fas fa-question-circle"></i> Подтверждение</h2>
+            </div>
+            <div class="custom-confirm-body">
+                <p>${message}</p>
+            </div>
+            <div class="custom-confirm-footer">
+                <button class="cancel-btn">Отмена</button>
+                <button class="confirm-btn">Подтвердить</button>
+            </div>
+        </div>
+    `;
+
+    // Добавляем стили для анимации
+    modal.style.opacity = '0';
+    document.body.appendChild(modal);
+    setTimeout(() => modal.style.opacity = '1', 50);
+
+    // Обработчики кнопок
+    const confirmBtn = modal.querySelector('.confirm-btn');
+    const cancelBtn = modal.querySelector('.cancel-btn');
+
+    confirmBtn.addEventListener('click', () => {
+        modal.style.opacity = '0';
+        setTimeout(() => {
+            modal.remove();
+            onConfirm?.();
+        }, 300);
+    });
+
+    cancelBtn.addEventListener('click', () => {
+        modal.style.opacity = '0';
+        setTimeout(() => {
+            modal.remove();
+            onCancel?.();
+        }, 300);
+    });
+
+    // Закрытие по клику вне окна
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.remove();
+                onCancel?.();
+            }, 300);
+        }
+    });
 }
