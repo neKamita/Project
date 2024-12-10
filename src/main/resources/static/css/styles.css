@@ -1817,3 +1817,147 @@ body.dark-theme .notification-item {
 body.dark-theme .notification-time {
     color: #999;
 }
+
+.add-recipe-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.add-recipe-btn:hover {
+    transform: scale(1.1);
+    background-color: var(--hover-color);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.add-recipe-btn i {
+    transition: transform 0.3s ease;
+}
+
+.add-recipe-btn:hover i {
+    transform: rotate(90deg);
+}
+
+/* Стили для мобильных устройств */
+@media (max-width: 768px) {
+    .add-recipe-btn {
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+}
+
+/* Темная тема */
+body.dark-theme .add-recipe-btn {
+    background-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-theme .add-recipe-btn:hover {
+    background-color: var(--hover-color);
+}
+/* Стили для модального окна подтверждения */
+.custom-confirm-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.custom-confirm-content {
+    background-color: white;
+    padding: 25px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    transform: translateY(0);
+    transition: transform 0.3s ease;
+}
+
+.custom-confirm-header h2 {
+    margin: 0 0 15px 0;
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.custom-confirm-body {
+    margin-bottom: 20px;
+}
+
+.custom-confirm-body p {
+    margin: 0;
+    line-height: 1.5;
+    color: var(--text-color);
+}
+
+.custom-confirm-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.custom-confirm-footer button {
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.custom-confirm-footer .cancel-btn {
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+}
+
+.custom-confirm-footer .confirm-btn {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.custom-confirm-footer button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Темная тема */
+body.dark-theme .custom-confirm-content {
+    background-color: var(--dark-bg);
+}
+
+body.dark-theme .custom-confirm-body p {
+    color: var(--dark-text);
+}
+
+body.dark-theme .custom-confirm-footer .cancel-btn {
+    background-color: var(--dark-secondary);
+    color: var(--dark-text);
+}

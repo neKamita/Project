@@ -1,3 +1,45 @@
+// Функция для отображения уведомлений
+function showNotification(message, type = 'success') {
+    const notificationsContainer = document.getElementById('notifications-container');
+    if (!notificationsContainer) return;
+
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+        <i class="fas ${getIconForType(type)}"></i>
+        <span>${message}</span>
+    `;
+
+    notificationsContainer.appendChild(notification);
+
+    // Анимация появления
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 100);
+
+    // Автоматическое скрытие через 3 секунды
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            notification.remove();
+        }, 300);
+    }, 3000);
+}
+
+// Вспомогательная функция для определения иконки уведомления
+function getIconForType(type) {
+    switch (type) {
+        case 'success':
+            return 'fa-check-circle';
+        case 'error':
+            return 'fa-exclamation-circle';
+        case 'info':
+            return 'fa-info-circle';
+        default:
+            return 'fa-info-circle';
+    }
+}
+
 // Данные для демонстрации (в реальном приложении будут получены с сервера)
 const mockData = {
     topChefs: [
@@ -60,6 +102,12 @@ const mockData = {
 let modal, addRecipeBtn, closeModalBtn, recipeForm, postsContainer, topChefsContainer;
 
 function showConfirmation(message, onConfirm, onCancel) {
+    // Check if a modal is already present
+    const existingModal = document.querySelector('.custom-confirm-modal');
+    if (existingModal) {
+        existingModal.remove(); // Remove the existing modal if it exists
+    }
+
     const modal = document.createElement('div');
     modal.className = 'custom-confirm-modal';
     modal.innerHTML = `
@@ -84,29 +132,28 @@ function showConfirmation(message, onConfirm, onCancel) {
     const confirmBtn = modal.querySelector('.confirm-btn');
     const cancelBtn = modal.querySelector('.cancel-btn');
 
-    confirmBtn.addEventListener('click', () => {
+    const closeModal = () => {
         modal.style.opacity = '0';
         setTimeout(() => {
             modal.remove();
-            onConfirm?.();
         }, 300);
+    };
+
+    confirmBtn.addEventListener('click', () => {
+        closeModal();
+        onConfirm?.();
     });
 
     cancelBtn.addEventListener('click', () => {
-        modal.style.opacity = '0';
-        setTimeout(() => {
-            modal.remove();
-            onCancel?.();
-        }, 300);
+        closeModal();
+        onCancel?.();
+        showNotification('Вы остались на странице', 'info');
     });
 
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
-            modal.style.opacity = '0';
-            setTimeout(() => {
-                modal.remove();
-                onCancel?.();
-            }, 300);
+            closeModal();
+            onCancel?.();
         }
     });
 }
@@ -145,6 +192,8 @@ function initializeCategorySelection() {
 
 // Инициализация страницы
 document.addEventListener('DOMContentLoaded', () => {
+    initializeEventListeners();
+    renderRecipes();
     setupTheme();
     initializeCategorySelection();
     // Инициализация DOM элементов
@@ -296,15 +345,13 @@ function renderRecipes() {
 
 // Инициализация обработчиков событий
 function initializeEventListeners() {
-    // Находим модальное окно и кнопку добавления рецепта
     const modal = document.getElementById('createRecipeModal');
     const addRecipeBtn = document.querySelector('.add-recipe-btn');
+    const closeBtn = modal?.querySelector('.close');
     
     if (!modal || !addRecipeBtn) return;
-    
-    const closeBtn = modal.querySelector('.close');
 
-    // Открыть модальное окно с проверкой роли
+    // Открытие модального окна
     addRecipeBtn.addEventListener('click', (e) => {
         e.preventDefault();
         const userRole = addRecipeBtn.getAttribute('data-user-role');
@@ -313,46 +360,34 @@ function initializeEventListeners() {
             showConfirmation(
                 'Для публикации рецептов необходимо стать поваром. Хотите перейти в профиль и получить статус повара?',
                 () => {
-                    LoaderManager.show();
+                    showLoader();
                     window.location.href = '/profile';
                 },
                 () => {
-                    NotificationManager.info('Вы можете стать поваром в любое время в своем профиле');
+                    showNotification('Вы можете стать поваром в любое время в своем профиле', 'info');
                 }
             );
         } else {
             modal.style.display = 'block';
-            document.body.style.overflow = 'hidden'; // Предотвращаем прокрутку фона
+            document.body.style.overflow = 'hidden';
         }
     });
 
-    // Закрыть модальное окно при клике на крестик
+    // Закрытие модального окна
     if (closeBtn) {
         closeBtn.addEventListener('click', () => {
             modal.style.display = 'none';
-            document.body.style.overflow = ''; // Возвращаем прокрутку
+            document.body.style.overflow = 'auto';
         });
     }
 
-    // Закрыть модальное окно при клике вне его
-    window.addEventListener('click', (event) => {
-        if (event.target === modal) {
+    // Закрытие по клику вне модального окна
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) {
             modal.style.display = 'none';
-            document.body.style.overflow = ''; // Возвращаем прокрутку
+            document.body.style.overflow = 'auto';
         }
     });
-
-    // Обработка формы создания рецепта
-    const recipeForm = document.getElementById('recipeForm');
-    if (recipeForm) {
-        recipeForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            // Здесь будет логика отправки формы
-            NotificationManager.success('Рецепт успешно создан!');
-            modal.style.display = 'none';
-            document.body.style.overflow = '';
-        });
-    }
 }
 
 // Mobile Menu Toggle

@@ -144,3 +144,30 @@ window.ChefShare = {
 document.addEventListener('DOMContentLoaded', () => {
     window.ChefShare.ThemeManager.init();
 });
+
+function showNotification(message, type = 'success') {
+    const notificationsContainer = document.getElementById('notifications-container');
+    if (!notificationsContainer) return;
+
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+        <i class="fas ${getIconForType(type)}"></i>
+        <span>${message}</span>
+    `;
+
+    notificationsContainer.querySelector('.notifications-list').appendChild(notification);
+
+    // Animation for showing the notification
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 100);
+
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+            notification.remove();
+        }, 300);
+    }, 3000);
+}

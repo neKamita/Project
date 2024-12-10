@@ -327,3 +327,28 @@ body.dark-theme .loader-spinner {
 body.dark-theme .loader-text {
     color: var(--text-primary);
 }
+/* Dark theme adjustments for notifications */
+body.dark-theme .notifications-fixed-container {
+    background: #333; /* Background color for the notifications container */
+}
+
+body.dark-theme .notification {
+    background: #444; /* Background color for individual notifications */
+    color: white; /* Text color for notifications */
+}
+
+body.dark-theme .notification.success {
+    background: #4CAF50; /* Success notification color */
+}
+
+body.dark-theme .notification.error {
+    background: #f44336; /* Error notification color */
+}
+
+body.dark-theme .notification.warning {
+    background: #ff9800; /* Warning notification color */
+}
+
+body.dark-theme .notification.info {
+    background: #2196F3; /* Info notification color */
+}
