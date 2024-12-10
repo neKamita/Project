@@ -1,88 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ChefShare - Регистрация</title>
-    <link rel="stylesheet" href="/css/styles.css">
-    <link rel="stylesheet" href="/css/root.css">
-    <link rel="stylesheet" href="/css/auth.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3565/3565418.png">
-</head>
-<body>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/root.css" />
+    <link rel="stylesheet" href="/css/auth.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap"
+      rel="stylesheet" />
+    <link
+      rel="icon"
+      type="image/png"
+      href="https://cdn-icons-png.flaticon.com/512/3565/3565418.png" />
+  </head>
+  <body>
     <div class="auth-container">
-        <div class="auth-header">
-            <img src="https://cdn-icons-png.flaticon.com/512/3565/3565418.png" alt="ChefShare Logo">
-            <h1>Создать аккаунт</h1>
-            <p>Присоединяйтесь к сообществу кулинаров!</p>
+      <div class="auth-header">
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/3565/3565418.png"
+          alt="ChefShare Logo" />
+        <h1>Создать аккаунт</h1>
+        <p>Присоединяйтесь к сообществу кулинаров!</p>
+      </div>
+
+      <form class="auth-form" action="/auth/signup" method="POST">
+        <div class="form-group">
+          <label for="firstName">First Name</label>
+          <input
+            type="text"
+            id="firstName"
+            name="firstName"
+            class="form-control"
+            required />
         </div>
-        
-        <form class="auth-form" action="/auth/signup" method="POST">
 
-            <div class="form-group">
-                <label for="firstName">First Name</label>
-                <input type="text" id="firstName" name="firstName" class="form-control" required>
-            </div>
-
-            <div class="form-group">
-                <label for="lastName">Last Name</label>
-                <input type="text" id="lastName" name="lastName" class="form-control">
-            </div>
-
-            <div class="form-group">
-                <label for="username">Имя пользователя</label>
-                <input type="text" id="username" name="username" class="form-control" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" class="form-control" required>
-            </div>
-
-
-            
-            <div class="form-group">
-                <label for="password">Пароль</label>
-                <input type="password" id="password" name="password" class="form-control" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="confirmPassword">Подтвердите пароль</label>
-                <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
-            </div>
-            
-            <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
-        </form>
-        
-        <div class="terms">
-            Регистрируясь, вы соглашаетесь с нашими 
-            <a href="/terms">Условиями использования</a> и 
-            <a href="/privacy">Политикой конфиденциальности</a>
+        <div class="form-group">
+          <label for="lastName">Last Name</label>
+          <input
+            type="text"
+            id="lastName"
+            name="lastName"
+            class="form-control" />
         </div>
-        
-        <div class="auth-links">
-            <p>Уже есть аккаунт? <a href="/auth/signin">Войти</a></p>
+
+        <div class="form-group">
+          <label for="username">Имя пользователя</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            class="form-control"
+            required />
         </div>
-        
-        <div class="social-auth">
-            <p>или зарегистрируйтесь через</p>
-            <div class="social-buttons">
-<!-- В signin.html и signup.html -->
-<a href="/oauth2/authorization/google" class="social-button" data-provider="Google">
-    <i class="fab fa-google"></i>
-</a>
-<a href="/oauth2/authorization/facebook" class="social-button" data-provider="Facebook">
-    <i class="fab fa-facebook-f"></i>
-</a>
-<a href="/oauth2/authorization/github" class="social-button" data-provider="Github">
-    <i class="fab fa-github"></i>
-</a>
-            </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            class="form-control"
+            required />
         </div>
+
+        <div class="form-group">
+          <label for="password">Пароль</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            class="form-control"
+            required />
+          <div class="password-strength"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Подтвердите пароль</label>
+          <input
+            type="password"
+            id="confirmPassword"
+            name="confirmPassword"
+            class="form-control"
+            required />
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+          Зарегистрироваться
+        </button>
+      </form>
+
+      <div class="terms">
+        Регистрируясь, вы соглашаетесь с нашими
+        <a href="/terms">Условиями использования</a> и
+        <a href="/privacy">Политикой конфиденциальности</a>
+      </div>
+
+      <div class="auth-links">
+        <p>Уже есть аккаунт? <a href="/auth/signin">Войти</a></p>
+      </div>
+
+      <div class="social-auth">
+        <p>или зарегистрируйтесь через</p>
+        <div class="social-buttons">
+          <!-- В signin.html и signup.html -->
+          <a
+            href="/oauth2/authorization/google"
+            class="social-button"
+            data-provider="Google">
+            <i class="fab fa-google"></i>
+          </a>
+          <a
+            href="/oauth2/authorization/facebook"
+            class="social-button"
+            data-provider="Facebook">
+            <i class="fab fa-facebook-f"></i>
+          </a>
+          <a
+            href="/oauth2/authorization/github"
+            class="social-button"
+            data-provider="Github">
+            <i class="fab fa-github"></i>
+          </a>
+        </div>
+      </div>
     </div>
     <div class="toast-container"></div>
     <div class="loading-spinner"></div>
@@ -90,10 +137,10 @@
     <script src="/js/loading-spinner.js"></script>
     <script src="/js/theme-manager.js"></script>
     <script>
-        // Инициализируем тему сразу после загрузки скрипта
-        ThemeManager.init();
+      // Инициализируем тему сразу после загрузки скрипта
+      ThemeManager.init();
     </script>
     <script src="/js/form-validator.js"></script>
     <script src="/js/auth.js"></script>
-</body>
+  </body>
 </html>

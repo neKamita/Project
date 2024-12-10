@@ -1,26 +1,41 @@
 package uz.pdp.project.controller;
 
-import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import uz.pdp.project.dto.SignInDTO;
-import uz.pdp.project.dto.SignUpDTO;
-import uz.pdp.project.entity.User;
-import uz.pdp.project.service.UserService;
-
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import uz.pdp.project.dto.SignInDTO;
+import uz.pdp.project.dto.SignUpDTO;
+import uz.pdp.project.entity.User;
+import uz.pdp.project.service.UserService;
 
 @Controller
 @RequestMapping("/auth")
@@ -28,6 +43,8 @@ import java.util.stream.Collectors;
 public class AuthController {
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
     private final UserService userService;
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     @GetMapping("/signin")
     public String getSignInPage() {
@@ -80,6 +97,14 @@ public class AuthController {
                                 "Пожалуйста, введите email и пароль"));
             }
 
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(signInDTO.getEmail(), signInDTO.getPassword()));
+
+            SecurityContext securityContext = SecurityContextHolder.getContext();
+            securityContext.setAuthentication(authentication);
+            session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, securityContext);
+            session.setAttribute("username", authentication.getName());
+
             Optional<User> userOptional = userService.authenticateUser(signInDTO);
 
             if (userOptional.isPresent()) {
@@ -97,6 +122,10 @@ public class AuthController {
 
                 log.info("User authenticated successfully: {}", email);
 
+                Authentication auth = new UsernamePasswordAuthenticationToken(user, null,
+                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+                SecurityContextHolder.getContext().setAuthentication(auth);
+
                 return ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(createSuccessResponse(firstName, username, email));
@@ -109,6 +138,16 @@ public class AuthController {
                     .body(createErrorResponse("Неверный email или пароль", true,
                             "Проверьте правильность введенных данных"));
 
+        } catch (AuthenticationException e) {
+            log.error("Authentication error: {}", e.getMessage(), e);
+
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(createErrorResponse("Неверный email или пароль", true,
+                            Optional.ofNullable(e.getMessage())
+                                    .filter(msg -> !msg.isEmpty())
+                                    .orElse("Произошла непредвиденная ошибка")));
         } catch (Exception e) {
             // Log the full stack trace with more context
             log.error("Authentication error: {}", e.getMessage(), e);
