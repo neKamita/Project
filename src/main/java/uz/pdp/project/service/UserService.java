@@ -4,11 +4,13 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import uz.pdp.project.dto.SignInDTO;
@@ -21,7 +23,8 @@ import uz.pdp.project.repository.UserRepository;
 public class UserService implements UserDetailsService {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
 
-    private final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -68,9 +71,21 @@ public class UserService implements UserDetailsService {
         }
 
         // Validate password requirements
-        if (signUpDTO.getPassword().length() < 8) {
-            log.error("Password too short for user: {}", signUpDTO.getUsername());
-            throw new RuntimeException("Password must be at least 8 characters long");
+        validatePassword(signUpDTO.getPassword());
+    }
+
+    private void validatePassword(String password) {
+        if (password.length() < 8) {
+            throw new RuntimeException("Пароль должен содержать минимум 8 символов");
+        }
+        if (!password.matches(".*[A-Z].*")) {
+            throw new RuntimeException("Пароль должен содержать заглавные буквы");
+        }
+        if (!password.matches(".*[a-z].*")) {
+            throw new RuntimeException("Пароль должен содержать строчные буквы");
+        }
+        if (!password.matches(".*[!@#$%^&*(),.?\":{}|<>].*")) {
+            throw new RuntimeException("Пароль должен содержать специальные символы");
         }
     }
 
@@ -86,4 +101,58 @@ public class UserService implements UserDetailsService {
                 })
                 .orElse(false);
     }
+
+    @Transactional
+    public void updateUserRole(String username, String newRole) {
+        userRepository.findByUsername(username)
+                .ifPresent(user -> {
+                    user.setRole(newRole);
+                    userRepository.save(user);
+                });
+    }
+
+    public int getFollowersCount(Integer userId) {
+        return userRepository.countFollowersByUserId(userId);
+    }
+
+    public int getPostsCount(Integer userId) {
+        return userRepository.countPostsByUserId(userId);
+    }
+
+    public int getFollowingCount(Integer userId) {
+        return userRepository.countFollowingByUserId(userId);
+    }
+
+    public double getChefRating(Integer userId) {
+        return 4.0 + (userId % 10) / 10.0;
+    }
+
+    @Transactional
+    public boolean updateProfile(Integer userId, String firstName, String lastName, String email,
+            String specializations, String experience, String about) {
+        return userRepository.findById(userId)
+                .map(user -> {
+                    user.setFirstName(firstName);
+                    user.setLastName(lastName);
+                    user.setEmail(email);
+                    user.setSpecializations(specializations);
+                    user.setExperience(experience);
+                    user.setAbout(about);
+                    userRepository.save(user);
+                    return true;
+                })
+                .orElse(false);
+    }
+
+    public String getUserRole(Integer userId) {
+        return userRepository.findById(userId)
+                .map(User::getRole)
+                .orElse("ROLE_USER");
+    }
+
+    public User getUserById(Integer id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
 }

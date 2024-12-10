@@ -57,35 +57,14 @@ function setupRecipeInteractions() {
 
 // Инициализация страницы
 document.addEventListener('DOMContentLoaded', () => {
-    // Core functionality
-    setupModal();
-    setupNavigation();
-    setupSettings();
-    setupNotifications();
+    setupProfileModal();
+    setupProfileNavigation();
     setupBecomeChef();
-    setupEventListeners();
-    renderRecipes();
-    setupCoverChange();
     setupAvatarChange();
+    setupCoverChange();
     setupImageUpload();
-    
-    // Apply gradients to elements that need them
-    document.querySelectorAll('.gradient-bg').forEach(element => {
-        applyGradient(element);
-    });
-    
-    // Initialize AOS
-    if (typeof AOS !== 'undefined') {
-        AOS.init({
-            duration: 800,
-            once: true
-        });
-    }
-    
-    // Welcome notification
-    setTimeout(() => {
-        NotificationManager.success('Welcome to your profile!');
-    }, 1000);
+    setupNotifications();
+    setupNavigation();
 });
 
 // Отображение рецептов
@@ -189,59 +168,7 @@ function showComments(recipeId) {
 }
 
 // Настройка обработчиков событий
-function setupEventListeners() {
-    const editProfileModal = document.getElementById('editProfileModal');
-    const editProfileBtn = document.querySelector('.edit-profile-btn');
-    const editProfileForm = document.getElementById('editProfileForm');
-    
-    if (editProfileModal && editProfileBtn) {
-        const closeBtn = editProfileModal.querySelector('.close-btn');
-        const cancelBtn = editProfileModal.querySelector('.cancel-btn');
-        const saveBtn = editProfileModal.querySelector('.save-btn');
 
-        // Открытие модального окна
-        editProfileBtn.addEventListener('click', () => {
-            editProfileModal.classList.add('show');
-            document.body.style.overflow = 'hidden'; // Prevent scrolling
-        });
-
-        // Закрытие модального окна
-        const closeModal = () => {
-            editProfileModal.classList.remove('show');
-            document.body.style.overflow = ''; // Restore scrolling
-        };
-
-        // Обработчики для кнопок закрытия
-        if (closeBtn) closeBtn.addEventListener('click', closeModal);
-        if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
-        if (saveBtn) {
-            saveBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (editProfileForm) {
-                    const formData = new FormData(editProfileForm);
-                    const data = Object.fromEntries(formData);
-                    updateProfile(data);
-                    closeModal();
-                    NotificationManager.success('Профиль успешно обновлен');
-                }
-            });
-        }
-
-        // Закрытие при клике вне модального окна
-        window.addEventListener('click', (e) => {
-            if (e.target === editProfileModal) {
-                closeModal();
-            }
-        });
-
-        // Закрытие по клавише Escape
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && editProfileModal.classList.contains('show')) {
-                closeModal();
-            }
-        });
-    }
-}
 
 // Настройка обработчиков для загрузки изображений
 function setupImageUpload() {
@@ -381,179 +308,8 @@ function setupNavigation() {
 }
 
 // Настройка настроек профиля
-function setupSettings() {
-    const settingsBtn = document.querySelector('.profile-nav button:nth-child(4)');
-    const settingsSection = document.getElementById('settingsSection');
-    const recipesGrid = document.getElementById('recipesGrid');
 
-    // Находим кнопки и модальное окно
-    const editProfileBtn = document.querySelector('button.settings-btn i.fa-edit').parentElement;
-    const changePasswordBtn = document.querySelector('button.settings-btn i.fa-key').parentElement;
-    const editProfileModal = document.getElementById('editProfileModal');
 
-    if (settingsBtn && settingsSection && recipesGrid) {
-        // Настройка переключения на вкладку настроек
-        settingsBtn.addEventListener('click', () => {
-            document.querySelectorAll('.profile-nav button').forEach(btn => btn.classList.remove('active'));
-            settingsBtn.classList.add('active');
-            recipesGrid.style.display = 'none';
-            settingsSection.style.display = 'block';
-        });
-
-        // Настройка кнопки редактирования профиля
-        if (editProfileBtn && editProfileModal) {
-            const closeBtn = editProfileModal.querySelector('.close');
-            const cancelBtn = editProfileModal.querySelector('.cancel-btn');
-            const form = editProfileModal.querySelector('form');
-
-            // Открытие модального окна
-            editProfileBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                editProfileModal.style.display = 'block';
-                setTimeout(() => editProfileModal.classList.add('show'), 10);
-            });
-
-            // Закрытие модального окна
-            const closeModal = () => {
-                editProfileModal.classList.remove('show');
-                setTimeout(() => editProfileModal.style.display = 'none', 300);
-            };
-
-            closeBtn?.addEventListener('click', closeModal);
-            cancelBtn?.addEventListener('click', closeModal);
-            editProfileModal.addEventListener('click', (e) => {
-                if (e.target === editProfileModal) closeModal();
-            });
-
-            // Обработка формы
-            form?.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const formData = new FormData(form);
-                const data = Object.fromEntries(formData);
-                updateProfile(data);
-                closeModal();
-                NotificationManager.success('Профиль успешно обновлен');
-            });
-        }
-
-        // Настройка кнопки изменения пароля
-        if (changePasswordBtn) {
-            changePasswordBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                NotificationManager.info('Функция изменения пароля находится в разработке');
-            });
-        }
-    }
-
-    // Обработчики для других кнопок навигации
-    document.querySelectorAll('.profile-nav button:not(:nth-child(4))').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.profile-nav button').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            settingsSection.style.display = 'none';
-            recipesGrid.style.display = 'grid';
-        });
-    });
-
-    // Настройка переключателей
-    const switches = {
-        'emailNotifications': {
-            'ru': 'Уведомления по email',
-            'en': 'Email notifications'
-        },
-        'pushNotifications': {
-            'ru': 'Push-уведомления',
-            'en': 'Push notifications'
-        },
-        'soundNotifications': {
-            'ru': 'Звуковые уведомления',
-            'en': 'Sound notifications'
-        },
-        'privateProfile': {
-            'ru': 'Приватный профиль',
-            'en': 'Private profile'
-        },
-        'showRecipes': {
-            'ru': 'Отображение рецептов',
-            'en': 'Show recipes'
-        },
-        'allowComments': {
-            'ru': 'Комментарии к рецептам',
-            'en': 'Recipe comments'
-        }
-    };
-
-    const statusText = {
-        'ru': {
-            'enabled': 'включены',
-            'disabled': 'отключены'
-        },
-        'en': {
-            'enabled': 'enabled',
-            'disabled': 'disabled'
-        }
-    };
-
-    Object.entries(switches).forEach(([id, labels]) => {
-        const switchElement = document.getElementById(id);
-        if (switchElement) {
-            // Загружаем сохраненное состояние
-            const savedState = localStorage.getItem(id) === 'true';
-            switchElement.checked = savedState;
-
-            switchElement.addEventListener('change', function() {
-                const isEnabled = this.checked;
-                localStorage.setItem(id, isEnabled);
-                
-                const currentLang = localStorage.getItem('language') || 'ru';
-                const label = labels[currentLang];
-                const status = statusText[currentLang][isEnabled ? 'enabled' : 'disabled'];
-                
-                NotificationManager.info(
-                    `${label} ${status}`,
-                    'info'
-                );
-            });
-        }
-    });
-
-    // Настройка языка
-    const languageSelect = document.getElementById('languageSelect');
-    if (languageSelect) {
-        // Загружаем сохраненный язык
-        const savedLanguage = localStorage.getItem('language') || 'ru';
-        languageSelect.value = savedLanguage;
-
-        languageSelect.addEventListener('change', function() {
-            const selectedLanguage = this.value;
-            localStorage.setItem('language', selectedLanguage);
-            
-            const languageNames = {
-                'ru': {
-                    'ru': 'Русский язык',
-                    'en': 'Russian language'
-                },
-                'en': {
-                    'ru': 'Английский язык',
-                    'en': 'English language'
-                }
-            };
-            
-            const currentLang = selectedLanguage;
-            const langName = languageNames[selectedLanguage][currentLang];
-            
-            const messages = {
-                'ru': 'Язык изменен на',
-                'en': 'Language changed to'
-            };
-            
-            NotificationManager.success(
-                `${messages[currentLang]} ${langName}`,
-                'success'
-            );
-        });
-    }
-}
 
 // Обработка уведомлений
 function setupNotifications() {
@@ -624,96 +380,40 @@ document.addEventListener('click', function(event) {
 
 // Обработка кнопки "Стать поваром"
 function setupBecomeChef() {
-    const becomeChefBtn = document.getElementById('becomeChefBtn');
-    const chefAgreementModal = document.getElementById('chefAgreementModal');
-    const chefAgreementCheckbox = document.getElementById('chefAgreementCheckbox');
-    const confirmChefBtn = document.getElementById('confirmChefBtn');
-    
+    const becomeChefBtn = document.querySelector('.become-chef-btn');
     if (!becomeChefBtn) return;
 
-    let isChef = localStorage.getItem('isChef') === 'true';
-    updateChefStatus(isChef);
-
-    // Обработчик клика по кнопке "Стать поваром"
-    becomeChefBtn.addEventListener('click', function() {
-        if (!isChef) {
-            chefAgreementModal.classList.add('active');
-            if (chefAgreementCheckbox) {
-                chefAgreementCheckbox.checked = false;
-                confirmChefBtn.disabled = true;
-            }
-        } else {
-            removeChefStatus();
+    becomeChefBtn.addEventListener('click', () => {
+        if (confirm('Вы уверены, что хотите изменить свою роль?')) {
+            toggleChefRole();
         }
     });
 
-    // Обработчик чекбокса соглашения
-    if (chefAgreementCheckbox) {
-        chefAgreementCheckbox.addEventListener('change', function() {
-            if (confirmChefBtn) {
-                confirmChefBtn.disabled = !this.checked;
+    function toggleChefRole() {
+        showLoader();
+        fetch('/api/user/toggle-role', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
             }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                NotificationManager.success(data.message);
+                setTimeout(() => {
+                    window.location.href = '/profile';
+                }, 1000);
+            } else {
+                hideLoader();
+                NotificationManager.error('Произошла ошибка при смене роли');
+            }
+        })
+        .catch(error => {
+            hideLoader();
+            console.error('Error:', error);
+            NotificationManager.error('Произошла ошибка при смене роли');
         });
-    }
-
-    // Обработчик подтверждения
-    if (confirmChefBtn) {
-        confirmChefBtn.disabled = true; // Изначально кнопка неактивна
-        
-        confirmChefBtn.addEventListener('click', function(e) {
-            e.preventDefault(); // Предотвращаем стандартное поведение
-            
-            if (!chefAgreementCheckbox || !chefAgreementCheckbox.checked) {
-                NotificationManager.warning('Необходимо принять условия соглашения');
-                // Добавляем подсветку чекбокса
-                const checkbox = document.getElementById('chefAgreementCheckbox');
-                if (checkbox) {
-                    checkbox.parentElement.style.border = '2px solid #FF9800';
-                    setTimeout(() => {
-                        checkbox.parentElement.style.border = '';
-                    }, 2000);
-                }
-                return false;
-            }
-            
-            becomeChef();
-            closeChefModal();
-        });
-    }
-
-    // Функция закрытия модального окна
-    window.closeChefModal = function() {
-        if (chefAgreementModal) {
-            chefAgreementModal.classList.remove('active');
-            if (chefAgreementCheckbox) {
-                chefAgreementCheckbox.checked = false;
-            }
-            if (confirmChefBtn) {
-                confirmChefBtn.disabled = true;
-            }
-        }
-    };
-
-    function updateChefStatus(isChefStatus) {
-        isChef = isChefStatus;
-        if (becomeChefBtn) {
-            becomeChefBtn.innerHTML = isChef ? 
-                '<i class="fas fa-user"></i> Отказаться от статуса повара' : 
-                '<i class="fas fa-utensils"></i> Стать поваром';
-            becomeChefBtn.classList.toggle('is-chef', isChef);
-        }
-    }
-
-    function becomeChef() {
-        localStorage.setItem('isChef', 'true');
-        updateChefStatus(true);
-        NotificationManager.success('Поздравляем! Вы стали поваром!');
-    }
-
-    function removeChefStatus() {
-        localStorage.setItem('isChef', 'false');
-        updateChefStatus(false);
-        NotificationManager.info('Вы отказались от статуса повара');
     }
 }
 
@@ -734,11 +434,29 @@ function handleSuccess(message) {
 }
 
 // Настройка модального окна
-function setupModal() {
+function setupProfileModal() {
     const modal = document.getElementById('editProfileModal');
-    const editProfileBtn = document.querySelector('.edit-profile-btn');
+    const editProfileBtn = document.querySelector('.settings-btn i.fa-edit')?.parentElement;
+    const form = document.getElementById('editProfileForm');
     
-    if (!modal || !editProfileBtn) return;
+    if (!modal || !editProfileBtn || !form) return;
+
+    // Добавляем обработчики для специальных полей
+    const specializationsInput = form.querySelector('input[name="specializations"]');
+    const experienceSelect = form.querySelector('select[name="experience"]');
+    
+    if (specializationsInput && experienceSelect) {
+        const userRole = document.querySelector('input[name="userRole"]')?.value;
+        const isChef = userRole === 'ROLE_CHEF';
+        
+        if (!isChef) {
+            [specializationsInput, experienceSelect].forEach(element => {
+                element.disabled = true;
+                element.style.cursor = 'not-allowed';
+                element.style.opacity = '0.7';
+            });
+        }
+    }
 
     const closeBtn = modal.querySelector('.close-btn');
     const cancelBtn = modal.querySelector('.cancel-btn');
@@ -746,61 +464,78 @@ function setupModal() {
 
     function openModal() {
         modal.style.display = 'flex';
-        setTimeout(() => {
-            modal.classList.add('show');
-            document.body.style.overflow = 'hidden'; // Prevent scrolling
-        }, 10);
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
     }
 
     function closeModal() {
         modal.classList.remove('show');
-        document.body.style.overflow = ''; // Restore scrolling
+        document.body.style.overflow = '';
         setTimeout(() => {
             modal.style.display = 'none';
-        }, 300); // Match the CSS transition duration
+        }, 300);
     }
 
-    // Open modal
+    // Закрытие при клике вне модального окна
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+
+    // Закрытие по клавише Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('show')) {
+            closeModal();
+        }
+    });
+
     editProfileBtn.addEventListener('click', openModal);
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
 
-    // Close modal with close button
-    if (closeBtn) {
-        closeBtn.addEventListener('click', closeModal);
-    }
-
-    // Close modal with cancel button
-    if (cancelBtn) {
-        cancelBtn.addEventListener('click', closeModal);
-    }
-
-    // Save changes
     if (saveBtn) {
         saveBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            const form = modal.querySelector('form');
-            if (form) {
-                const formData = new FormData(form);
-                const data = Object.fromEntries(formData);
-                updateProfile(data);
-                closeModal();
-                NotificationManager.success('Профиль успешно обновлен');
-            }
+            const formData = new FormData(form);
+            
+            fetch('/api/user/update-profile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(Object.fromEntries(formData))
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    closeModal();
+                    NotificationManager.success('Профиль успешно обновлен');
+                    // Обновляем значения на странице без перезагрузки
+                    document.querySelector('.profile-name h1').innerHTML = 
+                        `<span>${data.firstName}</span> <span>${data.lastName}</span>`;
+                    
+                    // Обновляем значения в форме
+                    form.querySelector('input[name="firstName"]').value = data.firstName;
+                    form.querySelector('input[name="lastName"]').value = data.lastName;
+                    form.querySelector('input[name="email"]').value = data.email;
+                    if (data.specializations) {
+                        form.querySelector('input[name="specializations"]').value = data.specializations;
+                    }
+                    if (data.experience) {
+                        form.querySelector('select[name="experience"]').value = data.experience;
+                    }
+                    if (data.about) {
+                        form.querySelector('textarea[name="about"]').value = data.about;
+                    }
+                } else {
+                    NotificationManager.error(data.message || 'Не удалось обновить профиль');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                NotificationManager.error('Произошла ошибка при обновлении профиля');
+            });
         });
     }
-
-    // Close modal when clicking outside
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            closeModal();
-        }
-    });
-
-    // Close modal with Escape key
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal.style.display === 'flex') {
-            closeModal();
-        }
-    });
 }
 
 // Функция генерации случайного градиента
@@ -1084,16 +819,111 @@ function setupAvatarChange() {
         if (e.key === 'Escape' && changeAvatarModal.classList.contains('active')) {
             changeAvatarModal.classList.remove('active');
             if (avatarInput) avatarInput.value = '';
-        }
+        }   
     });
 }
 
-// Обновление данных профиля
 function updateProfile(data) {
+    // Update profile name
     const profileName = document.querySelector('.profile-name h1');
+    if (profileName) {
+        profileName.innerHTML = `<span>${data.firstName}</span> <span>${data.lastName}</span>`;
+    }
+
+    // Update specializations
+    const specializationsInput = document.querySelector('input[name="specializations"]');
+    if (specializationsInput) {
+        specializationsInput.value = data.specializations || '';
+    }
+
+    // Update about section
+    const aboutTextarea = document.querySelector('textarea[name="about"]');
+    if (aboutTextarea) {
+        aboutTextarea.value = data.about || '';
+    }
+
+    // Update experience
+    const experienceSelect = document.querySelector('select[name="experience"]');
+    if (experienceSelect) {
+        experienceSelect.value = data.experience || 'beginner';
+    }
+
+    // Update visible profile sections
     const profileBio = document.querySelector('.profile-bio');
+    if (profileBio) {
+        profileBio.textContent = data.about || '';
+    }
+
+    const specializationsElement = document.querySelector('.chef-specializations');
+    if (specializationsElement) {
+        specializationsElement.textContent = data.specializations || '';
+    }
+}
+
+function setupProfileNavigation() {
+    const profileNav = document.querySelector('.profile-nav');
+    const recipesGrid = document.getElementById('recipesGrid');
+    const settingsSection = document.getElementById('settingsSection');
     
-    profileName.textContent = data.name;
-    profileBio.textContent = data.bio;
-    // Обновление других полей профиля
+    if (profileNav) {
+        const buttons = profileNav.querySelectorAll('button');
+        
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                buttons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                const icon = button.querySelector('i');
+                if (icon) {
+                    if (icon.classList.contains('fa-cog')) {
+                        recipesGrid.style.display = 'none';
+                        settingsSection.style.display = 'block';
+                        
+                        // Add click handlers for settings buttons
+                        const changePasswordBtn = settingsSection.querySelector('.settings-btn i.fa-key')?.parentElement;
+                        const changeLangBtn = settingsSection.querySelector('.settings-btn i.fa-language')?.parentElement;
+                        
+                        if (changePasswordBtn) {
+                            changePasswordBtn.addEventListener('click', () => {
+                                NotificationManager.info('Функция изменения пароля будет доступна в ближайшее время');
+                            });
+                        }
+                        
+                        if (changeLangBtn) {
+                            changeLangBtn.addEventListener('click', () => {
+                                NotificationManager.info('Функция смены языка будет доступна в ближайшее время');
+                            });
+                        }
+                    } else {
+                        settingsSection.style.display = 'none';
+                        recipesGrid.style.display = 'grid';
+                    }
+                }
+            });
+        });
+    }
+}
+
+function showProfileSection(section) {
+    // Hide all sections first
+    const allSections = ['recipes', 'saved', 'liked', 'settings'];
+    allSections.forEach(s => {
+        const element = document.getElementById(`${s}Grid`);
+        if (element) element.style.display = 'none';
+    });
+    
+    // Show selected section
+    const selectedSection = document.getElementById(`${section}Grid`);
+    if (selectedSection) {
+        selectedSection.style.display = 'grid';
+        if (section === 'recipes') {
+            renderRecipes();
+        } else if (section === 'saved') {
+            renderSavedRecipes();
+        } else if (section === 'liked') {
+            renderLikedRecipes();
+        } else if (section === 'settings') {
+            renderSettings();
+        }
+    }
 }

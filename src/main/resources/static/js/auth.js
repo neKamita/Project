@@ -36,25 +36,20 @@ class AuthPage {
     if (this.form) {
       this.form.addEventListener("submit", (event) => {
         event.preventDefault();
+        const url = this.form.getAttribute("action");
+        const data = this.collectFormData();
 
-        if (this.validateForm()) {
-          const data = this.collectFormData();
-
-          // Check if it's a sign-up form and validate password confirmation
-          const url = this.form.getAttribute("action");
-          if (url.includes("/signup")) {
-            const confirmPassword = this.form.querySelector(
-              'input[name="confirmPassword"]'
-            ).value;
-            if (data.password !== confirmPassword) {
-              this.showError("Пароли не совпадают"); // Show error message
-              return; // Prevent form submission
-            }
+        if (url.includes("/signup")) {
+          if (!this.validatePassword(data.password)) {
+            return;
           }
-
-          // If all validations pass, submit the form
-          this.submitForm(url, data);
+          if (data.password !== data.confirmPassword) {
+            this.showError("Пароли не совпадают");
+            return;
+          }
         }
+
+        this.submitForm(url, data);
       });
     }
   }
@@ -216,7 +211,6 @@ class AuthPage {
   }
 
   validateField(input) {
-    // Remove any existing error messages
     const existingError = input.parentNode.querySelector(".error-message");
     if (existingError) {
       existingError.remove();
@@ -226,54 +220,18 @@ class AuthPage {
     const type = input.type;
     let isValid = true;
 
-    // Check for required fields
     if (input.hasAttribute("required") && value === "") {
       this.showFieldError(input, "Это поле обязательно для заполнения");
-      isValid = false;
+      return false;
     }
 
-    // Специфические проверки по типу
-    switch (type) {
-      case "email":
-        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        if (!emailRegex.test(value)) {
-          this.showFieldError(
-            input,
-            "Введите корректный адрес электронной почты"
-          );
-          isValid = false;
-        }
-        break;
-      case "password":
-        const passwordCheck = this.calculatePasswordStrength(value);
-        if (!passwordCheck.isValid) {
-          this.showFieldError(input, "Требования к паролю:");
-          passwordCheck.failedChecks.forEach((error) => {
-            this.showFieldError(input, `• ${error}`);
-          });
-          isValid = false;
-        }
-        break;
-    }
-
-    // Custom validation attributes
-    if (input.hasAttribute("data-validate")) {
-      const customValidation = input.getAttribute("data-validate");
-      switch (customValidation) {
-        case "match":
-          const matchTarget = document.querySelector(
-            input.getAttribute("data-match-target")
-          );
-          if (matchTarget && value !== matchTarget.value) {
-            this.showFieldError(input, "Значения не совпадают");
-            isValid = false;
-          }
-          break;
+    if (type === "email") {
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailRegex.test(value)) {
+        this.showFieldError(input, "Введите корректный адрес электронной почты");
+        return false;
       }
     }
-
-    // Add/remove invalid class for styling
-    input.classList.toggle("is-invalid", !isValid);
 
     return isValid;
   }
@@ -406,6 +364,31 @@ class AuthPage {
   showSuccess(message) {
     NotificationManager.show(message, "success");
   }
+}
+
+function validatePassword(password) {
+    const requirements = {
+        length: password.length >= 8,
+        uppercase: /[A-Z]/.test(password),
+        lowercase: /[a-z]/.test(password),
+        special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+    };
+
+    // Show notifications for each requirement
+    if (!requirements.length) {
+        NotificationManager.warning('Пароль должен содержать минимум 8 символов');
+    }
+    if (!requirements.uppercase) {
+        NotificationManager.warning('Пароль должен содержать заглавные буквы');
+    }
+    if (!requirements.lowercase) {
+        NotificationManager.warning('Пароль должен содержать строчные буквы');
+    }
+    if (!requirements.special) {
+        NotificationManager.warning('Пароль должен содержать специальные символы');
+    }
+
+    return Object.values(requirements).every(req => req === true);
 }
 
 // Initialize auth page functionality
