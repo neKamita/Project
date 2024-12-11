@@ -54,7 +54,7 @@
                     <button class="nav-btn notifications-button" title="Уведомления">
                         <i class="fas fa-bell"></i>
                     </button>
-                    <li><a href="profile.html"><i class="fas fa-user"></i> Профиль</a></li>
+                    <li><a href="/profile"><i class="fas fa-user"></i> Профиль</a></li>
                 </ul>
             </div>
         </nav>
@@ -91,10 +91,100 @@
                     <h2>Ваши рецепты</h2>
                     <div class="recipe-list">
                         <th:block th:each="recipe : ${recipes}">
-                            <div class="recipe-card">
-                                <img th:src="@{${recipe.imagePath}}" alt="Recipe Image">
-                                <h3 th:text="${recipe.title}"></h3>
-                                <p th:text="${recipe.description}"></p>
+                            <div class="recipe-card" th:if="${recipe.user != null}" th:attr="data-recipe-id=${recipe.id}">
+                                <div class="recipe-card-content" th:onclick="navigateToRecipe(this)">
+                                    <div class="recipe-card-image">
+                                        <img th:src="${recipe.imagePath}" alt="Recipe Image" class="recipe-image">
+                                    </div>
+                                    <div class="recipe-card-details">
+                                        <h2 th:text="${recipe.title}">Recipe Title</h2>
+                                        <div class="recipe-card-meta">
+                                            <div class="recipe-meta-item">
+                                                <i class="fas fa-clock"></i>
+                                                <span>45 мин</span>
+                                            </div>
+                                            <div class="recipe-meta-item">
+                                                <i class="fas fa-utensils"></i>
+                                                <span th:text="${recipe.ingredients != null && recipe.ingredients.contains(',') ? #lists.size(recipe.ingredients.split(',')) : (recipe.ingredients != null ? 1 : 0)} + ' ингр.'">0 ингр.</span>
+                                            </div>
+                                            <div class="recipe-meta-item">
+                                                <i class="fas fa-list-ol"></i>
+                                                <span th:text="${recipe.steps != null && recipe.steps.contains(',') ? #lists.size(recipe.steps.split(',')) : (recipe.steps != null ? 1 : 0)} + ' шагов'">0 шагов</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="recipe-additional-info">
+                                            <div class="recipe-difficulty">
+                                                <span class="difficulty-label">Сложность:</span>
+                                                <div class="difficulty-icons">
+                                                    <i class="fas fa-circle" th:classappend="${recipe.difficulty >= 1 ? 'active' : ''}"></i>
+                                                    <i class="fas fa-circle" th:classappend="${recipe.difficulty >= 2 ? 'active' : ''}"></i>
+                                                    <i class="fas fa-circle" th:classappend="${recipe.difficulty >= 3 ? 'active' : ''}"></i>
+                                                </div>
+                                            </div>
+
+                                            <div class="recipe-nutrition">
+                                                <div class="nutrition-item">
+                                                    <i class="fas fa-fire"></i>
+                                                    <span class="nutrition-label">Калории</span>
+                                                    <span class="nutrition-value" th:text="${recipe.calories ?: '-'}">-</span>
+                                                </div>
+                                                <div class="nutrition-item">
+                                                    <i class="fas fa-drumstick-bite"></i>
+                                                    <span class="nutrition-label">Белки</span>
+                                                    <span class="nutrition-value" th:text="${recipe.proteins ?: '-'}">-</span>
+                                                </div>
+                                                <div class="nutrition-item">
+                                                    <i class="fas fa-bread-slice"></i>
+                                                    <span class="nutrition-label">Углеводы</span>
+                                                    <span class="nutrition-value" th:text="${recipe.carbs ?: '-'}">-</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <p th:text="${recipe.description}" class="recipe-description">
+                                            Описание рецепта
+                                        </p>
+
+                                        <div class="recipe-author-stats">
+                                            <div class="recipe-author">
+                                                <img th:src="${recipe.user.avatarPath ?: '/images/default-avatar.png'}" 
+                                                     alt="Автор рецепта" class="author-avatar">
+                                                <div class="author-details">
+                                                    <span class="author-name" th:text="${recipe.user.firstName + ' ' + recipe.user.lastName}">Имя Фамилия</span>
+                                                    <span class="author-specialization" th:text="${recipe.user.specializations ?: 'Повар'}">Специализация</span>
+                                                </div>
+                                            </div>
+                                            <div class="recipe-stats">
+                                                <div class="stat-item">
+                                                    <i class="fas fa-heart"></i>
+                                                    <span th:text="${recipe.likes ?: 0}">0</span>
+                                                </div>
+                                                <div class="stat-item">
+                                                    <i class="fas fa-comment"></i>
+                                                    <span th:text="${recipe.comments ?: 0}">0</span>
+                                                </div>
+                                                <div class="stat-item">
+                                                    <i class="fas fa-eye"></i>
+                                                    <span th:text="${recipe.views ?: 0}">0</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="recipe-card-options" th:if="${currentUserId != null and recipe.user.id == currentUserId}">
+                                    <button class="recipe-card-options-btn" onclick="toggleTooltip(this)">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <div class="recipe-card-tooltip" style="display: none;">
+                                        <a href="#" th:href="@{/edit-recipe/{id}(id=${recipe.id})}" onclick="handleTooltipClick(event, this)">
+                                            <i class="fas fa-edit"></i> Изменить
+                                        </a>
+                                        <a href="#" th:href="@{/delete-recipe/{id}(id=${recipe.id})}" onclick="handleTooltipClick(event, this)">
+                                            <i class="fas fa-trash"></i> Удалить
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </th:block>
                     </div>
@@ -108,7 +198,7 @@
         <div class="modal-content">
             <span class="close"><i class="fas fa-times"></i></span>
             <h2><i class="fas fa-utensils"></i> Создать новый рецепт</h2>
-            <form id="recipeForm" action="/add-recipe" method="POST" enctype="multipart/form-data" onsubmit="concatenateIngredients(); concatenateSteps();">
+            <form id="recipeForm" action="/add-recipe" method="POST" enctype="multipart/form-data">
                 <input type="text" name="title" placeholder="Название рецепта" required>
                 <textarea name="description" placeholder="Описание рецепта" required></textarea>
                 <div class="ingredients-section">
@@ -122,7 +212,6 @@
                     </div>
                     <button type="button" class="add-ingredient"><i class="fas fa-plus"></i> Добавить ингредиент</button>
                 </div>
-                <input type="hidden" name="ingredients">
                 <div class="steps-section">
                     <h3><i class="fas fa-tasks"></i> Шаги приготовления</h3>
                     <div class="steps-list">
@@ -133,7 +222,36 @@
                     </div>
                     <button type="button" class="add-step"><i class="fas fa-plus"></i> Добавить шаг</button>
                 </div>
-                <input type="hidden" name="steps">
+                
+                <!-- Новые поля для статистики рецепта -->
+                <div class="recipe-stats-section">
+                    <h3><i class="fas fa-chart-bar"></i> Статистика рецепта</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="difficulty">Сложность</label>
+                            <select name="difficulty" id="difficulty">
+                                <option value="1">Легко</option>
+                                <option value="2">Средне</option>
+                                <option value="3">Сложно</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="calories">Калории</label>
+                            <input type="number" name="calories" id="calories" placeholder="Количество калорий">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="proteins">Белки (г)</label>
+                            <input type="number" step="0.1" name="proteins" id="proteins" placeholder="Количество белков">
+                        </div>
+                        <div class="form-group">
+                            <label for="carbs">Углеводы (г)</label>
+                            <input type="number" step="0.1" name="carbs" id="carbs" placeholder="Количество углеводов">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="image-upload">
                     <label for="recipeImage">
                         <i class="fas fa-camera"></i> Добавить фото
@@ -162,7 +280,7 @@
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
     <script src="/js/root.js"></script>
-    <script src="js/script.js"></script>
+    <script src="/js/script.js"></script>
     <script src="/js/recipe.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -201,6 +319,49 @@
             if (errorMessage) {
                 ChefShare.Toast.show(errorMessage, 'error');
             }
+        });
+    </script>
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const recipeCards = document.querySelectorAll('.recipe-card');
+            recipeCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const recipeId = this.getAttribute('data-recipe-id');
+                    window.location.href = '/recipe/' + recipeId;
+                });
+            });
+        });
+    </script>
+    <script th:inline="javascript">
+        function navigateToRecipe(element) {
+            const recipeId = element.closest('.recipe-card').getAttribute('data-recipe-id');
+            if (recipeId && recipeId !== 'null') {
+                window.location.href = '/recipe/' + recipeId;
+            }
+        }
+
+        function toggleTooltip(button) {
+            const tooltip = button.nextElementSibling;
+            tooltip.style.display = tooltip.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function handleTooltipClick(event, link) {
+            event.preventDefault();
+            const recipeId = link.getAttribute('href').split('/').pop();
+            if (recipeId && recipeId !== 'null') {
+                window.location.href = link.getAttribute('href');
+            }
+        }
+
+        // Close tooltips when clicking outside
+        document.addEventListener('click', function(event) {
+            const tooltips = document.querySelectorAll('.recipe-card-tooltip');
+            tooltips.forEach(tooltip => {
+                if (!tooltip.contains(event.target) && 
+                    !tooltip.previousElementSibling.contains(event.target)) {
+                    tooltip.style.display = 'none';
+                }
+            });
         });
     </script>
 </body>

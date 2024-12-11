@@ -41,7 +41,7 @@ public class RecipeController {
     @Autowired
     private UserService userService;
 
-    private static final String UPLOAD_DIR = "uploads/";
+    private static final String UPLOAD_DIR = "static/images/";
 
     private static final Logger logger = LoggerFactory.getLogger(RecipeController.class);
 
@@ -52,6 +52,10 @@ public class RecipeController {
             @RequestParam("ingredients") String ingredients,
             @RequestParam("steps") String steps,
             @RequestParam(value = "image", required = false) MultipartFile image,
+            @RequestParam(value = "difficulty", required = false) Integer difficulty,
+            @RequestParam(value = "calories", required = false) Integer calories,
+            @RequestParam(value = "proteins", required = false) Double proteins,
+            @RequestParam(value = "carbs", required = false) Double carbs,
             Model model,
             RedirectAttributes redirectAttributes) {
         try {
@@ -87,9 +91,20 @@ public class RecipeController {
             recipe.setDescription(description);
             recipe.setIngredients(ingredients);
             recipe.setSteps(steps);
-            recipe.setImagePath(imagePath);
+            if (imagePath != null) {
+                recipe.setImagePath(imagePath);
+            }
             recipe.setUser(currentUser);
             recipe.setEnabled(true);
+
+            // Добавление новых полей статистики
+            recipe.setDifficulty(difficulty != null ? difficulty : 1);
+            recipe.setCalories(calories != null ? calories : 0);
+            recipe.setProteins(proteins != null ? proteins : 0.0);
+            recipe.setCarbs(carbs != null ? carbs : 0.0);
+            recipe.setLikes(0);
+            recipe.setComments(0);
+            recipe.setViews(0);
 
             recipeRepository.save(recipe);
 
@@ -152,8 +167,9 @@ public class RecipeController {
     }
 
     private String uploadImage(MultipartFile image) throws IOException {
-        // Ensure the upload directory exists
-        Path uploadPath = Paths.get(UPLOAD_DIR).toAbsolutePath().normalize();
+        // Use absolute path for image upload
+        Path uploadPath = Paths.get(System.getProperty("user.dir"), "src", "main", "resources", UPLOAD_DIR)
+                .toAbsolutePath().normalize();
         Files.createDirectories(uploadPath);
 
         // Generate a unique filename to prevent overwriting
@@ -172,8 +188,8 @@ public class RecipeController {
             Files.copy(inputStream, targetLocation, StandardCopyOption.REPLACE_EXISTING);
         }
 
-        // Return the relative path for storing in database
-        return UPLOAD_DIR + uniqueFilename;
+        // Return the path relative to static resources
+        return "images/" + uniqueFilename;
     }
 
     private String getCurrentUserEmail(Authentication auth) {

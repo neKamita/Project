@@ -26,12 +26,16 @@ public class IndexController {
     @GetMapping("/")
     public String getIndexPage(Model model) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.isAuthenticated()) {
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName())) {
             String username = auth.getName();
+            Long currentUserId = userService.getUserIdByUsername(username);
             String userRole = userService.getUserRoleByUsername(username);
+            
             model.addAttribute("userRole", userRole);
+            model.addAttribute("currentUserId", currentUserId);
         } else {
             model.addAttribute("userRole", "ROLE_USER");
+            model.addAttribute("currentUserId", null);
         }
 
         // Fetch recipes with minimal data to avoid LOB streaming issues

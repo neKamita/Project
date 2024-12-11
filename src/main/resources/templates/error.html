@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Ошибка</title>
+    <link rel="stylesheet" href="/css/error.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-content">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h1 th:text="${status} + ' - Ошибка'">Ошибка</h1>
+            <p th:text="${message}">Произошла неизвестная ошибка</p>
+            
+            <div class="error-details" th:if="${timestamp != null}">
+                <small>
+                    <strong>Время:</strong> <span th:text="${timestamp}"></span>
+                </small>
+            </div>
+            
+            <details class="technical-details" th:if="${technicalDetails != null}">
+                <summary>Технические детали</summary>
+                <pre th:text="${technicalDetails}"></pre>
+            </details>
+            
+            <a href="/" class="btn-return">Вернуться на главную</a>
+        </div>
+    </div>
+</body>
+</html>

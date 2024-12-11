@@ -314,7 +314,7 @@ public class AuthController {
         response.put("username", username != null ? username : "unknown");
         response.put("email", email);
         response.put("redirect", "/");
-        response.put("error", false);
+            response.put("error", false);
         response.put("details", null);
 
         return response;

@@ -68,6 +68,16 @@ public class UserService implements UserDetailsService {
         return null;
     }
 
+    public Long getUserIdByUsername(String username) {
+        Optional<User> user = userRepository.findByUsername(username);
+
+        if (user.isPresent()) {
+            return Long.valueOf(user.get().getId()); // Return the user's ID
+        }
+
+        return null;
+    }
+
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
