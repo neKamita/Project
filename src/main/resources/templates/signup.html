@@ -138,5 +138,14 @@
 <script src="/js/root.js"></script>
     <script src="/js/form-validator.js"></script>
     <script src="/js/auth.js"></script>
+
+        <script>
+          document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('chefshare-theme');
+            const isDark = savedTheme === 'dark';
+            document.documentElement.classList.toggle('dark-theme', isDark);
+            document.body.classList.toggle('dark-theme', isDark);
+          });
+        </script>
   </body>
 </html>

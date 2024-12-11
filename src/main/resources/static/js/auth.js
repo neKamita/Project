@@ -253,7 +253,7 @@ class AuthPage {
         const result = this.calculatePasswordStrength(e.target.value);
 
         // Clear previous indicators
-        strengthIndicator.innerHTML = "";
+        strengthIndicator.innerHTML = ``;
 
         // Add strength bars
         for (let i = 0; i < 5; i++) {
@@ -335,10 +335,7 @@ class AuthPage {
   initiateSocialLogin(provider) {
     // Заглушка для социальной авторизации
     console.log(`Initiating login with ${provider}`);
-    NotificationManager.show(
-      `Вход через ${provider} временно недоступен`,
-      "warning"
-    );
+    this.showError(`Вход через ${provider} временно недоступен`);
   }
 
   showError(message) {

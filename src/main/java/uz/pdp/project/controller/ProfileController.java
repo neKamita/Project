@@ -30,10 +30,8 @@ public class ProfileController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.getPrincipal() instanceof User) {
             User userFromAuth = (User) auth.getPrincipal();
-            // Получаем свежие данные из базы данных
             User user = userService.getUserById(userFromAuth.getId());
 
-            // Basic user info
             model.addAttribute("firstName", user.getFirstName());
             model.addAttribute("lastName", user.getLastName());
             model.addAttribute("email", user.getEmail());
@@ -43,12 +41,10 @@ public class ProfileController {
             model.addAttribute("experience", user.getExperience());
             model.addAttribute("about", user.getAbout());
 
-            // Common statistics
             model.addAttribute("posts", userService.getPostsCount(user.getId()));
             model.addAttribute("following", userService.getFollowingCount(user.getId()));
 
             if ("ROLE_CHEF".equals(user.getRole())) {
-                // Chef statistics
                 model.addAttribute("followers", userService.getFollowersCount(user.getId()));
                 model.addAttribute("rating", userService.getChefRating(user.getId()));
             }
@@ -68,7 +64,6 @@ public class ProfileController {
         Map<String, Object> response = new HashMap<>();
 
         if (auth != null && auth.getPrincipal() instanceof User) {
-            // Получаем свежие данные из базы
             User user = userService.getUserById(((User) auth.getPrincipal()).getId());
 
             response.put("success", true);

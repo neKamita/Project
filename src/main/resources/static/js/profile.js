@@ -75,6 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupCoverChange();
     setupNotifications();
     setupNavigation();
+    setupThemeToggle();
 });
 
 // Отображение рецептов
@@ -1011,4 +1012,19 @@ function showConfirmation(message, onConfirm, onCancel) {
             }, 300);
         }
     });
+}
+
+// Add event listener for theme toggle switch to update theme preference
+function setupThemeToggle() {
+    const themeToggle = document.getElementById('darkThemeToggle');
+    if (themeToggle) {
+        themeToggle.checked = localStorage.getItem('chefshare-theme') === 'dark';
+        themeToggle.addEventListener('change', () => {
+            const isDark = themeToggle.checked;
+            document.documentElement.classList.toggle('dark-theme', isDark);
+            document.body.classList.toggle('dark-theme', isDark);
+            localStorage.setItem('chefshare-theme', isDark ? 'dark' : 'light');
+            console.log(`Theme set to: ${isDark ? 'dark' : 'light'}`);
+        });
+    }
 }

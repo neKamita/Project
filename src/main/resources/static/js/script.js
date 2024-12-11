@@ -41,7 +41,7 @@ function getIconForType(type) {
 }
 
 // Данные для демонстрации (в реальном приложении будут получены с сервера)
-const mockData = {
+const mockData = window.mockData || {
     topChefs: [
         { 
             id: 1, 
@@ -299,47 +299,57 @@ function renderTopChefs() {
 
 // Отображение рецептов
 function renderRecipes() {
-    if (!postsContainer) return;
-    
-    mockData.recipes.forEach(recipe => {
-        const postElement = document.createElement('div');
-        postElement.className = 'post';
-        postElement.innerHTML = `
-            <div class="post-header">
-                <img src="${recipe.author.avatar}" alt="${recipe.author.name}" class="author-avatar">
-                <div class="author-info">
-                    <div class="author-name">
-                        ${recipe.author.name}
-                        ${recipe.author.verified ? '<i class="fas fa-check-circle"></i>' : ''}
+    const recipesContainer = document.getElementById('recipes-container');
+    if (!recipesContainer) return;
+
+    fetch('/api/recipes')
+        .then(response => response.json())
+        .then(recipes => {
+            recipesContainer.innerHTML = recipes.map(recipe => `
+                <div class="recipe-card" data-recipe-id="${recipe.id}">
+                    <div class="recipe-card-header">
+                        <div class="recipe-card-options">
+                            <button class="options-btn">
+                                <i class="fas fa-ellipsis-v"></i>
+                                <div class="options-dropdown">
+                                    ${recipe.user.id === currentUserId ? `
+                                        <a href="#" class="option-disable" onclick="handleRecipeAction('disable', ${recipe.id})">
+                                            <i class="fas fa-eye-slash"></i> Скрыть рецепт
+                                        </a>
+                                    ` : ''}
+                                </div>
+                            </button>
+                        </div>
                     </div>
-                    <div class="post-meta">Опубликовано сегодня</div>
+                    <img src="${recipe.imagePath}" alt="${recipe.title}" class="recipe-image">
+                    <div class="recipe-details">
+                        <h3>${recipe.title}</h3>
+                        <p>${recipe.description}</p>
+                    </div>
                 </div>
-                <button class="more-options"><i class="fas fa-ellipsis-h"></i></button>
-            </div>
-            <div class="post-image">
-                <img src="${recipe.image}" alt="${recipe.title}">
-            </div>
-            <div class="post-actions">
-                <button class="action-btn ${recipe.isSaved ? 'active' : ''}">
-                    <i class="fas fa-bookmark"></i>
-                </button>
-                <button class="action-btn">
-                    <i class="fas fa-heart"></i>
-                    <span>${recipe.likes}</span>
-                </button>
-                <button class="action-btn">
-                    <i class="fas fa-comment"></i>
-                </button>
-                <button class="action-btn">
-                    <i class="fas fa-share"></i>
-                </button>
-            </div>
-            <div class="post-content">
-                <h3>${recipe.title}</h3>
-                <p>${recipe.description}</p>
-            </div>
-        `;
-        postsContainer.appendChild(postElement);
+            `).join('');
+
+            setupRecipeCardListeners();
+        })
+        .catch(error => {
+            console.error('Error fetching recipes:', error);
+            showNotification('Не удалось загрузить рецепты', 'error');
+        });
+}
+
+function setupRecipeCardListeners() {
+    const optionsBtns = document.querySelectorAll('.options-btn');
+    optionsBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const dropdown = this.querySelector('.options-dropdown');
+            dropdown.classList.toggle('show');
+        });
+    });
+
+    document.addEventListener('click', () => {
+        const dropdowns = document.querySelectorAll('.options-dropdown');
+        dropdowns.forEach(dropdown => dropdown.classList.remove('show'));
     });
 }
 
@@ -371,6 +381,7 @@ function initializeEventListeners() {
             modal.style.display = 'block';
             document.body.style.overflow = 'hidden';
         }
+        console.log('User Role:', userRole);
     });
 
     // Закрытие модального окна
@@ -450,17 +461,27 @@ function handleSuccess(message) {
 
 function handleRecipeAction(action, recipeId) {
     switch(action) {
-        case 'like':
-            Toast.show('Recipe added to favorites', 'success');
+        case 'disable':
+            fetch(`/disable-recipe/${recipeId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    showNotification('Рецепт успешно скрыт', 'success');
+                    renderRecipes();
+                } else {
+                    showNotification('Не удалось скрыть рецепт', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Произошла ошибка', 'error');
+            });
             break;
-        case 'save':
-            Toast.show('Recipe saved to collection', 'success');
-            break;
-        case 'share':
-            Toast.show('Share link copied to clipboard', 'info');
-            break;
-        default:
-            Toast.show('Action completed', 'info');
+        // Other actions can be added here
     }
 }
 
@@ -549,51 +570,53 @@ function setupAuthForms() {
 }
 
 // Обновляем функцию setupNavigation
-function setupNavigation() {
-    const navButtons = document.querySelectorAll('.nav-buttons .nav-btn');
-    
-    navButtons.forEach(button => {
-        button.addEventListener('click', (e) => {
-            const title = button.getAttribute('title');
-            
-            if (title === 'Уведомления') {
-                button.classList.toggle('active');
-                e.stopPropagation();
-                return;
-            }
+   // Обновляем функцию setupNavigation
+   function setupNavigation() {
+       const navButtons = document.querySelectorAll('.nav-buttons .nav-btn');
 
-            e.preventDefault();
-            showLoader();
-            
-            switch(title) {
-                case 'Главная':
-                    window.location.href = '/';
-                    break;
-                case 'Добавить рецепт':
-                    const userRole = button.getAttribute('data-user-role');
-                    if (userRole !== 'ROLE_CHEF') {
-                        hideLoader();
-                        showConfirmation(
-                            'Для публикации рецептов необходимо стать поваром. Хотите перейти в профиль и получить статус повара?',
-                            () => {
-                                showLoader();
-                                window.location.href = '/profile';
-                            },
-                            () => {
-                                NotificationManager.info('Вы можете стать поваром в любое время в своем профиле');
-                            }
-                        );
-                    } else {
-                        window.location.href = '/create';
-                    }
-                    break;
-                case 'Профиль':
-                    window.location.href = '/profile';
-                    break;
-            }
-        });
-    });
-}
+       navButtons.forEach(button => {
+           button.addEventListener('click', (e) => {
+               const title = button.getAttribute('title');
+
+               if (title === 'Добавить рецепт') {
+                   const userRole = button.getAttribute('data-user-role');
+
+                   if (userRole === 'ROLE_CHEF') {
+                       // Open the recipe modal if the user is a chef
+                       const modal = document.getElementById('createRecipeModal');
+                       modal.style.display = 'block';
+                       document.body.style.overflow = 'hidden'; // Prevent background scrolling
+                   } else {
+                       // Show confirmation notification if the user is not a chef
+                       showConfirmation(
+                           'Для публикации рецептов необходимо стать поваром. Хотите перейти в профиль и получить статус повара?',
+                           () => {
+                               showLoader();
+                               window.location.href = '/profile';
+                           },
+                           () => {
+                               showNotification('Вы можете стать поваром в любое время в своем профиле', 'info');
+                           }
+                       );
+                   }
+                   return; // Prevent further processing
+               }
+
+               // Handle other navigation cases
+               e.preventDefault();
+               showLoader();
+
+               switch(title) {
+                   case 'Главная':
+                       window.location.href = '/';
+                       break;
+                   case 'Профиль':
+                       window.location.href = '/profile';
+                       break;
+               }
+           });
+       });
+   }
 
 // Добавляем глобальные обработчики навигации
 document.addEventListener('DOMContentLoaded', () => {
@@ -638,4 +661,34 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('load', () => {
         hideLoader();
     });
+});
+
+// Function to initialize notification toggle
+function setupNotificationToggle() {
+    const notificationsButton = document.querySelector('.notifications-button');
+    const notificationsContainer = document.getElementById('notifications-container');
+    const closeBtn = notificationsContainer.querySelector('.close');
+
+    // Toggle notifications container visibility
+    notificationsButton.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent event from bubbling up
+        notificationsContainer.style.display = notificationsContainer.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // Close notifications container
+    closeBtn.addEventListener('click', () => {
+        notificationsContainer.style.display = 'none';
+    });
+
+    // Close notifications container when clicking outside of it
+    window.addEventListener('click', (e) => {
+        if (notificationsContainer.style.display === 'block' && !notificationsContainer.contains(e.target) && !notificationsButton.contains(e.target)) {
+            notificationsContainer.style.display = 'none';
+        }
+    });
+}
+
+// Initialize the notification toggle when the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', () => {
+    setupNotificationToggle();
 });

@@ -5,10 +5,33 @@ spring:
     url: jdbc:postgresql://localhost:5432/project
     password: root123
     username: postgres
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      auto-commit: false
   jpa:
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          lob:
+            non_contextual_creation: true
+          batch_size: 20
+        format_sql: true
+        temp:
+          use_jdbc_metadata_defaults: false
     show-sql: true
+  web:
+    resources:
+      static-locations:
+        - classpath:/static/
+        - file:./uploads/
+        - file:${user.dir}/uploads/
+    mvc:
+      static-path-pattern: /**
 logging:
   level:
     root: INFO

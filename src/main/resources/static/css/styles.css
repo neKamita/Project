@@ -667,7 +667,7 @@ body.dark-theme .post-meta {
 .action-btn {
     background: none;
     border: none;
-    color: var(--secondary-color);
+    color: #000000; /* Set to black for consistency */
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -694,7 +694,7 @@ body.dark-theme .post-meta {
 
 .post-content h3 {
     margin-bottom: 0.5rem;
-    color: var(--secondary-color);
+    color: #000000;
 }
 
 .post-content p {
@@ -1169,109 +1169,6 @@ body.dark-theme .recipe-stats i {
     }
 }
 
-.notifications-content {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    background: var(--bg-color);
-}
-
-.notifications-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 15px;
-    border-bottom: 1px solid var(--border-color);
-    margin-bottom: 15px;
-}
-
-.notifications-header h2 {
-    margin: 0;
-    font-size: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: var(--text-color);
-}
-
-.notifications-header .close {
-    cursor: pointer;
-    font-size: 1.2rem;
-    color: var(--text-color);
-    padding: 5px;
-    transition: color 0.3s;
-}
-
-.notifications-header .close:hover {
-    color: var(--primary-color);
-}
-
-.notifications-list {
-    flex: 1;
-    overflow-y: auto;
-    padding-right: 10px;
-}
-
-.notification-item {
-    display: flex;
-    align-items: flex-start;
-    padding: 15px;
-    border-bottom: 1px solid var(--border-color);
-    transition: background-color 0.3s;
-    background: var(--bg-color);
-}
-
-.notification-item:hover {
-    background-color: var(--hover-color);
-}
-
-.notification-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    margin-right: 15px;
-    object-fit: cover;
-}
-
-.notification-info {
-    flex: 1;
-}
-
-.notification-info p {
-    margin: 0 0 5px 0;
-    color: var(--text-color);
-    line-height: 1.4;
-}
-
-.notification-info strong {
-    color: var(--primary-color);
-    font-weight: 600;
-}
-
-.notification-time {
-    font-size: 0.85rem;
-    color: var(--secondary-text);
-    display: block;
-}
-
-/* Dark theme styles for notifications */
-body.dark-theme .notifications-container {
-    background: var(--navbar-bg-dark);
-}
-
-body.dark-theme .notification-item {
-    background: var(--navbar-bg-dark);
-    border-color: var(--border-color-dark);
-}
-
-body.dark-theme .notification-item:hover {
-    background: var(--hover-color-dark);
-}
-
-body.dark-theme .notifications-header {
-    border-color: var(--border-color-dark);
-}
 
 .sidebar,
 .categories a,
@@ -1872,7 +1769,46 @@ body.dark-theme .add-recipe-btn {
 body.dark-theme .add-recipe-btn:hover {
     background-color: var(--hover-color);
 }
-/* Стили для модального окна подтверждения */
+
+/* Customize scrollbar to match site style */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f0f0f0;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #bdc3c7; /* Match border color */
+    border-radius: 10px;
+    border: 2px solid #ecf0f1; /* Match background color */
+}
+
+/* Ensure card text is black for better readability */
+.card {
+    color: #000000;
+}
+
+/* Ensure icons are black for consistency */
+.card i,
+.navbar i,
+.mobile-menu i {
+    color: #000000;
+}
+
+/* Ensure h2 in post-content is black */
+.post-content h2 {
+    color: #000000;
+}
+
+/* Ensure icons in post-actions are black */
+.post-actions i {
+    color: #000000;
+}
+
+/* Styles for custom confirm modal */
 .custom-confirm-modal {
     position: fixed;
     top: 0;
@@ -1948,7 +1884,7 @@ body.dark-theme .add-recipe-btn:hover {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Темная тема */
+/* Dark theme adjustments */
 body.dark-theme .custom-confirm-content {
     background-color: var(--dark-bg);
 }

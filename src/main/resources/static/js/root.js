@@ -5,63 +5,7 @@ const ThemeManager = {
 
     init() {
         console.log('ThemeManager: Initializing...');
-        this.loadTheme();
-        this.setupThemeToggle();
-        this.setupSettingsToggle();
-    },
-
-    loadTheme() {
-        console.log('ThemeManager: Loading theme...');
-        const savedTheme = localStorage.getItem(this.themeKey);
-        console.log('ThemeManager: Saved theme:', savedTheme);
-        if (savedTheme === 'dark') {
-            document.documentElement.classList.add(this.darkThemeClass);
-            document.body.classList.add(this.darkThemeClass);
-            const toggle = document.getElementById('darkThemeToggle');
-            if (toggle) toggle.checked = true;
-        }
-    },
-
-    toggleTheme() {
-        console.log('ThemeManager: Toggling theme...');
-        try {
-            document.documentElement.classList.toggle(this.darkThemeClass);
-            document.body.classList.toggle(this.darkThemeClass);
-            const isDark = document.body.classList.contains(this.darkThemeClass);
-            localStorage.setItem(this.themeKey, isDark ? 'dark' : 'light');
-            window.ChefShare.Toast.show(`Тема ${isDark ? 'тёмная' : 'светлая'} включена`, 'info');
-            console.log('ThemeManager: Theme toggled to:', isDark ? 'dark' : 'light');
-            
-            const toggle = document.getElementById('darkThemeToggle');
-            if (toggle) toggle.checked = isDark;
-        } catch (error) {
-            console.error('ThemeManager: Error toggling theme:', error);
-        }
-    },
-
-    setupThemeToggle() {
-        console.log('ThemeManager: Setting up theme toggle...');
-        const themeToggle = document.querySelector('.theme-toggle');
-        console.log('ThemeManager: Theme toggle button found:', !!themeToggle);
-        if (themeToggle) {
-            themeToggle.addEventListener('click', (e) => {
-                e.preventDefault();
-                console.log('ThemeManager: Theme toggle clicked');
-                this.toggleTheme();
-            });
-        }
-    },
-
-    setupSettingsToggle() {
-        const toggle = document.getElementById('darkThemeToggle');
-        if (toggle) {
-            console.log('ThemeManager: Found settings toggle');
-            toggle.checked = document.body.classList.contains(this.darkThemeClass);
-            toggle.addEventListener('change', () => {
-                console.log('ThemeManager: Settings toggle changed');
-                this.toggleTheme();
-            });
-        }
+        // Removed theme management from root.js
     }
 };
 
@@ -142,7 +86,7 @@ window.ChefShare = {
 
 // Initialize managers
 document.addEventListener('DOMContentLoaded', () => {
-    window.ChefShare.ThemeManager.init();
+    // Removed theme management initialization
 });
 
 function showNotification(message, type = 'success') {
@@ -170,4 +114,128 @@ function showNotification(message, type = 'success') {
             notification.remove();
         }, 300);
     }, 3000);
+}
+
+function toggleNotifications() {
+    const notificationsContainer = document.getElementById('notifications-container');
+    if (notificationsContainer) {
+        notificationsContainer.style.display = notificationsContainer.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+function setupNotifications() {
+    const notificationButton = document.querySelector('.notifications-button');
+    const closeBtn = document.querySelector('.close');
+
+    if (notificationButton) {
+        notificationButton.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent event from bubbling up
+            toggleNotifications(); // Toggle the notifications container
+        });
+    }
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent event from bubbling up
+            toggleNotifications(); // Close the notifications container
+        });
+    }
+
+    // Close notifications when clicking outside
+    document.addEventListener('click', (e) => {
+        if (notificationsContainer && notificationsContainer.style.display === 'block') {
+            if (!notificationsContainer.contains(e.target) && !notificationButton.contains(e.target)) {
+                notificationsContainer.style.display = 'none'; // Close the notifications container
+            }
+        }
+    });
+}
+
+// Call the setup function when the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', setupNotifications);
+
+document.addEventListener('DOMContentLoaded', () => {
+    const notificationsContainer = document.getElementById('notifications-container');
+    
+    // Check if notificationsContainer exists
+    if (notificationsContainer) {
+        const notificationButtons = document.querySelectorAll('.notifications-button');
+        const closeBtn = notificationsContainer.querySelector('.close');
+
+        // Setup event listeners for notification buttons
+        notificationButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleNotifications(notificationsContainer);
+            });
+        });
+
+        // Setup event listener for close button
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                toggleNotifications(notificationsContainer);
+            });
+        }
+
+        // Close notifications when clicking outside
+        document.addEventListener('click', (e) => {
+            if (notificationsContainer.classList.contains('active')) {
+                const isClickInside = notificationsContainer.contains(e.target) || 
+                                      Array.from(notificationButtons).some(btn => btn.contains(e.target));
+                if (!isClickInside) {
+                    notificationsContainer.classList.remove('active');
+                }
+            }
+        });
+    }
+});
+
+// Function to toggle notifications
+function toggleNotifications(notificationsContainer) {
+    if (notificationsContainer) {
+        notificationsContainer.classList.toggle('active');
+    }
+}
+
+const notificationsContainer = document.getElementById('notifications-container');
+
+
+function setupNotifications() {
+    const notificationButtons = document.querySelectorAll('.notifications-button');
+    
+    // Ensure notificationsContainer is defined
+    if (!notificationsContainer) {
+        console.error('Notifications container not found');
+        return;
+    }
+
+    // Your existing setup code...
+    notificationButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleNotifications();
+        });
+    });
+
+    const closeBtn = notificationsContainer.querySelector('.close');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            toggleNotifications();
+        });
+    }
+
+    document.addEventListener('click', (e) => {
+        if (notificationsContainer.classList.contains('active')) {
+            const isClickInside = notificationsContainer.contains(e.target) || 
+                                  Array.from(notificationButtons).some(btn => btn.contains(e.target));
+            if (!isClickInside) {
+                notificationsContainer.classList.remove('active');
+            }
+        }
+    }); 
+
+    
+
 }

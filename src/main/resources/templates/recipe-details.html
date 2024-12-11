@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Details</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <div class="recipe-details">
+        <h1 th:text="${recipe.title}"></h1>
+        <img th:src="@{'/uploads/' + ${recipe.imagePath}}" alt="Recipe Image">
+        <p><strong>Description:</strong> <span th:text="${recipe.description}"></span></p>
+        <p><strong>Ingredients:</strong> <span th:text="${recipe.ingredients}"></span></p>
+        <p><strong>Steps:</strong> <span th:text="${recipe.steps}"></span></p>
+        <a href="/" class="back-button">Back to Home</a>
+    </div>
+</body>
+</html>

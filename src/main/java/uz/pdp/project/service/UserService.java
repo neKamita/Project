@@ -58,6 +58,21 @@ public class UserService implements UserDetailsService {
                 .filter(user -> passwordEncoder.matches(signInDTO.getPassword(), user.getPassword()));
     }
 
+    public String getUserRoleByUsername(String username) {
+        Optional<User> user = userRepository.findByUsername(username);
+
+        if (user.isPresent()) {
+            return user.get().getRole(); // Return the user's role
+        }
+
+        return null;
+    }
+
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+    }
+
     private void validateSignUpDTO(SignUpDTO signUpDTO) {
         // Check for existing email
         if (userRepository.existsByEmail(signUpDTO.getEmail().toLowerCase())) {
@@ -156,4 +171,7 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
+    public void becomeChef(String username) {
+        updateUserRole(username, "ROLE_CHEF");
+    }
 }

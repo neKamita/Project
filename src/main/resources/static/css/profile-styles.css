@@ -1,11 +1,17 @@
 /* Profile styles */
 :root {
-    --primary-color: #ff4757;
-    --secondary-color: #2f3542;
-    --background-color: #f1f2f6;
-    --text-color: #2f3542;
-    --border-color: #dfe4ea;
-    --hover-color: #ff6b81;
+    --primary-color: #3498db; /* Updated to a more vibrant blue */
+    --secondary-color: #2ecc71; /* Updated to a lighter green */
+    --background-color: #ecf0f1; /* Slightly lighter background for better contrast */
+    --text-color: #34495e; /* Darker text for better readability */
+    --border-color: #bdc3c7; /* Softer border color */
+    --hover-color: #2980b9; /* Darker hover color for buttons */
+    --bg-primary: #ffffff; /* Pure white background for primary sections */
+    --bg-secondary: #f8f9fa; /* Very light gray for secondary sections */
+    --text-primary: #2c3e50; /* Darker primary text color */
+    --text-secondary: #7f8c8d; /* Softer secondary text color */
+    --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Softer shadow for a subtle effect */
+    --hover-bg: #e0e0e0; /* Light gray hover background */
     /* Светлая тема */
     --bg-primary: #f5f5f5;
     --bg-secondary: #ffffff;
@@ -41,6 +47,7 @@ body.dark-theme {
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     overflow: hidden;
     margin-bottom: 2rem;
+    color: #000000;
 }
 
 .profile-cover {
@@ -2021,4 +2028,21 @@ body.dark-theme .custom-confirm-footer .confirm-btn:hover {
 
 .crop-btn:hover {
     background-color: var(--hover-color);
+}
+
+/* Ensure text and icons in profile.html are black */
+.profile-main,
+.profile-header,
+.profile-cover,
+.profile-content,
+.profile-footer {
+    color: #000000;
+}
+
+.profile-main i,
+.profile-header i,
+.profile-cover i,
+.profile-content i,
+.profile-footer i {
+    color: #000000;
 }

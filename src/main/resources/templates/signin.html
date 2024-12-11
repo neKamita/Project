@@ -61,5 +61,13 @@
     
     <div class="toast-container"></div>
     <div class="loading-spinner"></div>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const savedTheme = localStorage.getItem('chefshare-theme');
+                const isDark = savedTheme === 'dark';
+                document.documentElement.classList.toggle('dark-theme', isDark);
+                document.body.classList.toggle('dark-theme', isDark);
+            });
+        </script>
 </body>
 </html>

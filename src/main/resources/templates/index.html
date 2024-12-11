@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RecipeHub - Кулинарная социальная сеть</title>
-        <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/styles.css">
     <link rel="stylesheet" href="/css/root.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
@@ -27,10 +27,12 @@
                 </div>
                 <div class="nav-buttons">
                     <button class="nav-btn active" title="Главная"><i class="fas fa-home"></i></button>
-    <button class="add-recipe-btn" th:data-user-role="${userRole}">
-    <i class="fas fa-plus"></i>
-</button>
-                    <button class="nav-btn notifications-button" title="Уведомления"><i class="fas fa-bell"></i></button>
+                    <button class="add-recipe-btn" th:data-user-role="${userRole}">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button class="nav-btn notifications-button" title="Уведомления">
+                        <i class="fas fa-bell"></i>
+                    </button>
                     <a href="/profile" class="nav-btn" title="Профиль">
                         <img src="https://cdn-icons-png.flaticon.com/512/1946/1946429.png" alt="Profile" class="profile-icon">
                     </a>
@@ -46,10 +48,12 @@
                 </div>
                 <ul class="mobile-menu-items">
                     <li><a href="#"><i class="fas fa-home"></i> Главная</a></li>
-<button class="nav-btn" title="Добавить рецепт" th:data-user-role="${userRole}">
-    <i class="fas fa-plus"></i>
-</button>
-                    <li><button class="notifications-button"><i class="fas fa-bell"></i> Уведомления</button></li>
+                    <button class="nav-btn add-recipe-btn" title="Добавить рецепт" data-user-role="${userRole}">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button class="nav-btn notifications-button" title="Уведомления">
+                        <i class="fas fa-bell"></i>
+                    </button>
                     <li><a href="profile.html"><i class="fas fa-user"></i> Профиль</a></li>
                 </ul>
             </div>
@@ -82,6 +86,19 @@
                 <div class="posts-container">
                     <!-- Посты добавляются динамически через JavaScript -->
                 </div>
+                
+                <div class="recipes-section">
+                    <h2>Ваши рецепты</h2>
+                    <div class="recipe-list">
+                        <th:block th:each="recipe : ${recipes}">
+                            <div class="recipe-card">
+                                <img th:src="@{${recipe.imagePath}}" alt="Recipe Image">
+                                <h3 th:text="${recipe.title}"></h3>
+                                <p th:text="${recipe.description}"></p>
+                            </div>
+                        </th:block>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
@@ -91,9 +108,9 @@
         <div class="modal-content">
             <span class="close"><i class="fas fa-times"></i></span>
             <h2><i class="fas fa-utensils"></i> Создать новый рецепт</h2>
-            <form id="recipeForm">
-                <input type="text" placeholder="Название рецепта" required>
-                <textarea placeholder="Описание рецепта" required></textarea>
+            <form id="recipeForm" action="/add-recipe" method="POST" enctype="multipart/form-data" onsubmit="concatenateIngredients(); concatenateSteps();">
+                <input type="text" name="title" placeholder="Название рецепта" required>
+                <textarea name="description" placeholder="Описание рецепта" required></textarea>
                 <div class="ingredients-section">
                     <h3><i class="fas fa-list"></i> Ингредиенты</h3>
                     <div class="ingredients-list">
@@ -105,6 +122,7 @@
                     </div>
                     <button type="button" class="add-ingredient"><i class="fas fa-plus"></i> Добавить ингредиент</button>
                 </div>
+                <input type="hidden" name="ingredients">
                 <div class="steps-section">
                     <h3><i class="fas fa-tasks"></i> Шаги приготовления</h3>
                     <div class="steps-list">
@@ -115,11 +133,12 @@
                     </div>
                     <button type="button" class="add-step"><i class="fas fa-plus"></i> Добавить шаг</button>
                 </div>
+                <input type="hidden" name="steps">
                 <div class="image-upload">
                     <label for="recipeImage">
                         <i class="fas fa-camera"></i> Добавить фото
                     </label>
-                    <input type="file" id="recipeImage" accept="image/*">
+                    <input type="file" id="recipeImage" name="image" accept="image/*">
                     <div class="image-preview"></div>
                 </div>
                 <button type="submit" class="submit-recipe">
@@ -130,7 +149,7 @@
     </div>
 
     <!-- Notifications Container -->
-    <div id="notifications-container" class="notifications-fixed-container">
+    <div id="notifications-container" class="notifications-fixed-container" style="display: none;">
         <div class="notifications-content">
             <div class="notifications-header">
                 <h2><i class="fas fa-bell"></i> Уведомления</h2>
@@ -141,10 +160,48 @@
             </div>
         </div>
     </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-<script src="/js/root.js"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script src="/js/root.js"></script>
     <script src="js/script.js"></script>
+    <script src="/js/recipe.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('chefshare-theme');
+            const isDark = savedTheme === 'dark';
+            document.documentElement.classList.toggle('dark-theme', isDark);
+            document.body.classList.toggle('dark-theme', isDark);
+        });
+    </script>
+    <script>
+        function concatenateIngredients() {
+            const ingredientItems = document.querySelectorAll('.ingredient-item');
+            const ingredientsArray = Array.from(ingredientItems).map(item => {
+                const ingredient = item.querySelector('input[type="text"]').value;
+                const quantity = item.querySelector('input[type="text"]:nth-child(2)').value;
+                return `${ingredient} (${quantity})`;
+            });
+            document.querySelector('input[name="ingredients"]').value = ingredientsArray.join(', ');
+        }
+
+        function concatenateSteps() {
+            const stepItems = document.querySelectorAll('.step-item textarea');
+            const stepsArray = Array.from(stepItems).map(step => step.value);
+            document.querySelector('input[name="steps"]').value = stepsArray.join(', ');
+        }
+    </script>
+
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            const successMessage = /*[[${success}]]*/ null;
+            const errorMessage = /*[[${error}]]*/ null;
+
+            if (successMessage) {
+                ChefShare.Toast.show(successMessage, 'success');
+            }
+            if (errorMessage) {
+                ChefShare.Toast.show(errorMessage, 'error');
+            }
+        });
+    </script>
 </body>
 </html>
