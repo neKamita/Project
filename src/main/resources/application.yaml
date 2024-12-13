@@ -29,15 +29,16 @@ spring:
       static-locations:
         - classpath:/static/
         - file:${user.dir}/src/main/resources/static/
-    mvc:
       static-path-pattern: /**
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+      enabled: true
       location: ${user.dir}/src/main/resources/static/images
+
   file:
-    upload-dir: classpath:static/images
+    upload-dir: ${user.dir}/src/main/resources/static/images
 logging:
   level:
     root: INFO

@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3565/3565418.png">
+    <link rel="stylesheet" href="/css/recipe-options.css">
+
 </head>
 <body>
     <header>
@@ -173,14 +175,14 @@
                                     </div>
                                 </div>
                                 <div class="recipe-card-options" th:if="${currentUserId != null and recipe.user.id == currentUserId}">
-                                    <button class="recipe-card-options-btn" onclick="toggleTooltip(this)">
+                                    <button class="recipe-card-options-btn" onclick="event.stopPropagation(); toggleTooltip(this)">
                                         <i class="fas fa-ellipsis-v"></i>
                                     </button>
                                     <div class="recipe-card-tooltip" style="display: none;">
                                         <a href="#" th:href="@{/edit-recipe/{id}(id=${recipe.id})}" onclick="handleTooltipClick(event, this)">
                                             <i class="fas fa-edit"></i> Изменить
                                         </a>
-                                        <a href="#" th:href="@{/delete-recipe/{id}(id=${recipe.id})}" onclick="handleTooltipClick(event, this)">
+                                        <a href="#" th:href="@{/delete-recipe/{id}(id=${recipe.id})}" onclick="handleTooltipClick(event, this)" class="delete-option">
                                             <i class="fas fa-trash"></i> Удалить
                                         </a>
                                     </div>
@@ -333,37 +335,7 @@
             });
         });
     </script>
-    <script th:inline="javascript">
-        function navigateToRecipe(element) {
-            const recipeId = element.closest('.recipe-card').getAttribute('data-recipe-id');
-            if (recipeId && recipeId !== 'null') {
-                window.location.href = '/recipe/' + recipeId;
-            }
-        }
-
-        function toggleTooltip(button) {
-            const tooltip = button.nextElementSibling;
-            tooltip.style.display = tooltip.style.display === 'none' ? 'block' : 'none';
-        }
-
-        function handleTooltipClick(event, link) {
-            event.preventDefault();
-            const recipeId = link.getAttribute('href').split('/').pop();
-            if (recipeId && recipeId !== 'null') {
-                window.location.href = link.getAttribute('href');
-            }
-        }
-
-        // Close tooltips when clicking outside
-        document.addEventListener('click', function(event) {
-            const tooltips = document.querySelectorAll('.recipe-card-tooltip');
-            tooltips.forEach(tooltip => {
-                if (!tooltip.contains(event.target) && 
-                    !tooltip.previousElementSibling.contains(event.target)) {
-                    tooltip.style.display = 'none';
-                }
-            });
-        });
-    </script>
+    <script src="/js/recipe-options.js"></script>
 </body>
+
 </html>
