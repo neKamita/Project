@@ -77,6 +77,8 @@ public class User implements UserDetails {
     @Column(columnDefinition = "TEXT")
     private String about;
 
+    private String avatarPath;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role));

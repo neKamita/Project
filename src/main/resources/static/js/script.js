@@ -356,32 +356,38 @@ function setupRecipeCardListeners() {
 // Инициализация обработчиков событий
 function initializeEventListeners() {
     const modal = document.getElementById('createRecipeModal');
-    const addRecipeBtn = document.querySelector('.add-recipe-btn');
+    const addRecipeBtns = document.querySelectorAll('.add-recipe-btn');
     const closeBtn = modal?.querySelector('.close');
+    const recipeForm = document.getElementById('recipeForm');
     
-    if (!modal || !addRecipeBtn) return;
+    if (!modal || !addRecipeBtns) return;
 
     // Открытие модального окна
-    addRecipeBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const userRole = addRecipeBtn.getAttribute('data-user-role');
-        
-        if (userRole !== 'ROLE_CHEF') {
-            showConfirmation(
-                'Для публикации рецептов необходимо стать поваром. Хотите перейти в профиль и получить статус повара?',
-                () => {
-                    showLoader();
-                    window.location.href = '/profile';
-                },
-                () => {
-                    showNotification('Вы можете стать поваром в любое время в своем профиле', 'info');
-                }
-            );
-        } else {
-            modal.style.display = 'block';
-            document.body.style.overflow = 'hidden';
-        }
-        console.log('User Role:', userRole);
+    addRecipeBtns.forEach(addRecipeBtn => {
+        addRecipeBtn.addEventListener('click', (e) => {
+            console.log('Add recipe button clicked');
+            e.preventDefault();
+            const userRole = addRecipeBtn.getAttribute('data-user-role');
+            
+            if (userRole !== 'ROLE_CHEF') {
+                showConfirmation(
+                    'Для публикации рецептов необходимо стать поваром. Хотите перейти в профиль и получить статус повара?',
+                    () => {
+                        showLoader();
+                        window.location.href = '/profile';
+                    },
+                    () => {
+                        showNotification('Вы можете стать поваром в любое время в своем профиле', 'info');
+                    }
+                );
+            } else {
+                console.log('Opening modal');
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+                console.log('Modal opened');
+            }
+            console.log('User Role:', userRole);
+        });
     });
 
     // Закрытие модального окна
@@ -399,6 +405,14 @@ function initializeEventListeners() {
             document.body.style.overflow = 'auto';
         }
     });
+
+    // Add event listener to the form submit event
+    if (recipeForm) {
+        recipeForm.addEventListener('submit', (e) => {
+            concatenateIngredients();
+            concatenateSteps();
+        });
+    }
 }
 
 // Mobile Menu Toggle

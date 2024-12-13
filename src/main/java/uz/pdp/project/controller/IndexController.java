@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import uz.pdp.project.entity.Recipe;
+import uz.pdp.project.entity.User;
 import uz.pdp.project.repository.RecipeRepository;
 import uz.pdp.project.service.UserService;
 
@@ -30,7 +31,7 @@ public class IndexController {
             String username = auth.getName();
             Long currentUserId = userService.getUserIdByUsername(username);
             String userRole = userService.getUserRoleByUsername(username);
-            
+
             model.addAttribute("userRole", userRole);
             model.addAttribute("currentUserId", currentUserId);
         } else {
@@ -38,18 +39,8 @@ public class IndexController {
             model.addAttribute("currentUserId", null);
         }
 
-        // Fetch recipes with minimal data to avoid LOB streaming issues
-        List<Recipe> recipes = recipeRepository.findByEnabledTrue().stream()
-                .map(recipe -> {
-                    Recipe minimalRecipe = new Recipe();
-                    minimalRecipe.setId(recipe.getId());
-                    minimalRecipe.setTitle(recipe.getTitle());
-                    minimalRecipe.setImagePath(recipe.getImagePath());
-                    minimalRecipe.setEnabled(recipe.isEnabled());
-                    minimalRecipe.setUser(recipe.getUser());
-                    return minimalRecipe;
-                })
-                .collect(Collectors.toList());
+        // Fetch all enabled recipes
+        List<Recipe> recipes = recipeRepository.findByEnabledTrue();
 
         model.addAttribute("recipes", recipes);
         return "index";

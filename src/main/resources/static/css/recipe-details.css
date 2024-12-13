@@ -1,0 +1,171 @@
+.recipe-details-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.recipe-details {
+    width: 80%;
+    max-width: 800px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    background-color: #fff;
+}
+
+.recipe-title {
+    font-size: 2em;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.recipe-image-container {
+    width: 100%;
+    max-height: 400px;
+    overflow: hidden;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+}
+
+.recipe-image {
+    width: 100%;
+    object-fit: contain;
+}
+
+.recipe-meta {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 15px;
+}
+
+.recipe-meta-item {
+    display: flex;
+    align-items: center;
+}
+
+.recipe-meta-item i {
+    margin-right: 5px;
+}
+
+.recipe-additional-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.recipe-difficulty {
+    display: flex;
+    align-items: center;
+}
+
+.difficulty-icons i {
+    margin-left: 3px;
+    color: #ddd;
+}
+
+.difficulty-icons i.active {
+    color: #ffc107;
+}
+
+.recipe-nutrition {
+    display: flex;
+}
+
+.nutrition-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 10px;
+}
+
+.nutrition-item i {
+    margin-bottom: 5px;
+}
+
+.recipe-description {
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
+
+.recipe-author {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.author-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 10px;
+    object-fit: cover;
+}
+
+.author-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.author-name {
+    font-weight: bold;
+    text-decoration: none;
+    color: #007bff;
+}
+
+.author-specialization {
+    font-size: 0.9em;
+    color: #6c757d;
+}
+
+.recipe-ingredients, .recipe-steps {
+    margin-bottom: 15px;
+}
+
+.ingredients-list, .steps-list {
+    padding-left: 20px;
+}
+
+.comment-section {
+    width: 80%;
+    max-width: 800px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+.comments-list {
+    margin-bottom: 15px;
+}
+
+.add-comment textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.add-comment-btn {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.back-button {
+    display: inline-block;
+    padding: 10px 15px;
+    background-color: #6c757d;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-top: 20px;
+}

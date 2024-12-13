@@ -148,7 +148,7 @@
 
                                         <div class="recipe-author-stats">
                                             <div class="recipe-author">
-                                                <img th:src="${recipe.user.avatarPath ?: '/images/default-avatar.png'}" 
+                                                <img th:src="${recipe.user.avatarPath != null and !recipe.user.avatarPath.isEmpty() ? recipe.user.avatarPath : '/images/default-recipe.jpg'}" 
                                                      alt="Автор рецепта" class="author-avatar">
                                                 <div class="author-details">
                                                     <span class="author-name" th:text="${recipe.user.firstName + ' ' + recipe.user.lastName}">Имя Фамилия</span>
@@ -251,7 +251,8 @@
                         </div>
                     </div>
                 </div>
-
+                <input type="hidden" name="ingredients">
+                <input type="hidden" name="steps">
                 <div class="image-upload">
                     <label for="recipeImage">
                         <i class="fas fa-camera"></i> Добавить фото
