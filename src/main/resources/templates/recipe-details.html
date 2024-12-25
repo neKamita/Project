@@ -44,7 +44,10 @@
             <div class="recipe-details">
                 <h1 class="recipe-title" th:text="${recipe.title}">Recipe Title</h1>
                 <div class="recipe-image-container">
-                    <img th:src="${recipe.imagePath}" th:alt="${recipe.title}"/>
+                    <img th:src="${recipe.imagePath}" 
+                         th:alt="${recipe.title}"
+                         class="recipe-image"
+                         onerror="this.src='/images/default-recipe.jpg';">
                 </div>
                 <div class="recipe-meta">
                     <div class="recipe-meta-item">

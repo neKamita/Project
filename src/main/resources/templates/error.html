@@ -2,29 +2,39 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Ошибка</title>
+    <title th:text="${status} + ' - ' + ${message}">Ошибка</title>
     <link rel="stylesheet" href="/css/error.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <div class="error-container">
         <div class="error-content">
-            <i class="fas fa-exclamation-triangle"></i>
-            <h1 th:text="${status} + ' - Ошибка'">Ошибка</h1>
+            <i th:class="${status == 404 ? 'fas fa-search' : 'fas fa-exclamation-triangle'}"></i>
+            <h1>
+                <span th:text="${status}">500</span> - 
+                <span th:text="${status == 404 ? 'Ресурс не найден' : 'Ошибка'}">Ошибка</span>
+            </h1>
             <p th:text="${message}">Произошла неизвестная ошибка</p>
+            
+            <!-- Show specific message for resource not found -->
+            <p th:if="${status == 404 && technicalDetails != null}" class="resource-path">
+                Запрашиваемый ресурс: <code th:text="${#strings.substring(technicalDetails, technicalDetails.indexOf(':') + 1)}"></code>
+            </p>
             
             <div class="error-details" th:if="${timestamp != null}">
                 <small>
-                    <strong>Время:</strong> <span th:text="${timestamp}"></span>
+                    <strong>Время:</strong> <span th:text="${#temporals.format(timestamp, 'dd.MM.yyyy HH:mm:ss')}"></span>
                 </small>
             </div>
             
-            <details class="technical-details" th:if="${technicalDetails != null}">
+            <details class="technical-details" th:if="${technicalDetails != null && status != 404}">
                 <summary>Технические детали</summary>
                 <pre th:text="${technicalDetails}"></pre>
             </details>
             
-            <a href="/" class="btn-return">Вернуться на главную</a>
+            <a href="/" class="btn-return">
+                <i class="fas fa-home"></i> Вернуться на главную
+            </a>
         </div>
     </div>
 </body>

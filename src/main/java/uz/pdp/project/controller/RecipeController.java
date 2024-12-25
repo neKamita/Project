@@ -188,6 +188,25 @@ public class RecipeController {
     public String getRecipeById(@PathVariable Long id, Model model) {
         Recipe recipe = recipeRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Recipe not found"));
+        
+        // Fix image path handling
+        String imagePath = recipe.getImagePath();
+        if (imagePath == null || imagePath.isEmpty()) {
+            recipe.setImagePath("/images/default-recipe.jpg");
+        } else if (!imagePath.startsWith("/")) {
+            // Ensure image path starts with /
+            recipe.setImagePath("/" + imagePath);
+        }
+        
+        // Check if image file exists in both possible locations
+        String relativePath = imagePath.startsWith("/") ? imagePath.substring(1) : imagePath;
+        Path absolutePath = Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "static", relativePath);
+        
+        if (!Files.exists(absolutePath)) {
+            logger.warn("Image not found at: {}. Using default image.", absolutePath);
+            recipe.setImagePath("/images/default-recipe.jpg");
+        }
+
         model.addAttribute("recipe", recipe);
         return "recipe-details";
     }
