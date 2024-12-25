@@ -153,32 +153,38 @@ class AuthPage {
             return response.json();
         })
         .then((result) => {
-            setTimeout(() => {
-                window.ChefShare.LoaderManager.hide();
+            this.handleFormResponse(result, () => {
                 if (result.error) {
-                    setTimeout(() => {
-                        const errorMessage = result.message || result.details || "Неизвестная ошибка входа";
-                        this.showError(errorMessage);
-                    }, 1000);
+                    const errorMessage = result.message || result.details || "Неизвестная ошибка входа";
+                    this.showError(errorMessage);
                 } else {
+                    this.showSuccess(result.message || "Вход выполнен успешно!");
                     setTimeout(() => {
-                        this.showSuccess(result.message || "Вход выполнен успешно!");
-                        setTimeout(() => {
-                            window.location.href = result.redirect || "/";
-                        }, 3000);
-                    }, 1000);
+                        window.location.href = result.redirect || "/";
+                    }, 3000);
                 }
-            }, 1500);
+            });
         })
         .catch((error) => {
-            setTimeout(() => {
-                window.ChefShare.LoaderManager.hide();
-                setTimeout(() => {
-                    console.error("Auth error:", error);
-                    this.showError("Произошла ошибка при отправке формы");
-                }, 1000);
-            }, 1500);
+            this.handleFormResponse(null, () => {
+                console.error("Auth error:", error);
+                this.showError("Произошла ошибка при отправке формы");
+            });
         });
+}
+
+handleFormResponse(result, callback) {
+    const LOADER_DELAY = 1500;
+    const MESSAGE_DELAY = 1000;
+
+    setTimeout(() => {
+        window.ChefShare.LoaderManager.hide();
+        setTimeout(() => {
+            if (callback) {
+                callback();
+            }
+        }, MESSAGE_DELAY);
+    }, LOADER_DELAY);
 }
 
   validateForm() {
@@ -195,6 +201,7 @@ class AuthPage {
   }
 
   validateField(input) {
+    // Remove any existing error messages
     const existingError = input.parentNode.querySelector(".error-message");
     if (existingError) {
       existingError.remove();
@@ -202,19 +209,38 @@ class AuthPage {
 
     const value = input.value.trim();
     const type = input.type;
+    const name = input.name;
     let isValid = true;
 
-    if (input.hasAttribute("required") && value === "") {
-      this.showFieldError(input, "Это поле обязательно для заполнения");
-      return false;
-    }
-
-    if (type === "email") {
-      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-      if (!emailRegex.test(value)) {
-        this.showFieldError(input, "Введите корректный адрес электронной почты");
+    // Comprehensive validation with more specific error messages
+    switch (true) {
+      case input.hasAttribute("required") && value === "":
+        this.showFieldError(input, "Это поле обязательно для заполнения");
         return false;
-      }
+
+      case type === "email":
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(value)) {
+          this.showFieldError(input, "Введите корректный адрес электронной почты");
+          return false;
+        }
+        break;
+
+      case name === "username":
+        const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+        if (!usernameRegex.test(value)) {
+          this.showFieldError(input, "Имя пользователя должно содержать 3-20 символов (буквы, цифры, _)");
+          return false;
+        }
+        break;
+
+      case name === "password":
+        const passwordValidation = this.calculatePasswordStrength(value);
+        if (!passwordValidation.isValid) {
+          this.showFieldError(input, "Пароль не соответствует требованиям безопасности");
+          return false;
+        }
+        break;
     }
 
     return isValid;

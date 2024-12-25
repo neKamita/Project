@@ -172,7 +172,7 @@ public class RecipeController {
         Path targetLocation = uploadPath.resolve(uniqueFilename);
 
         // Copy file to the target location
-        try (InputStream inputStream = image.getInputStream()) {
+        try (InputSt    ream inputStream = image.getInputStream()) {
             Files.copy(inputStream, targetLocation, StandardCopyOption.REPLACE_EXISTING);
         }
 

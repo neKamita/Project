@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${recipe.title} + ' - RecipeHub'">Recipe Details</title>
+    <title th:text="${recipe.title} +
+     ' - RecipeHub'">Recipe Details</title>
     <link rel="stylesheet" href="/css/styles.css">
     <link rel="stylesheet" href="/css/root.css">
     <link rel="stylesheet" href="/css/recipe-details.css">
@@ -43,16 +44,7 @@
             <div class="recipe-details">
                 <h1 class="recipe-title" th:text="${recipe.title}">Recipe Title</h1>
                 <div class="recipe-image-container">
-                    <img th:if="${recipe.imagePath != null and !recipe.imagePath.isEmpty()}"
-                         th:src="@{${recipe.imagePath}}"
-                         alt="Recipe Image" 
-                         class="recipe-image"
-                         onerror="this.onerror=null; this.src=/*[[@{/images/default-recipe.jpg}]]*/''"
-                         th:onload="console.log('Image loaded successfully: ' + this.src)">
-                    <img th:unless="${recipe.imagePath != null and !recipe.imagePath.isEmpty()}"
-                         th:src="@{/images/default-recipe.jpg}"
-                         alt="Default Recipe Image"
-                         class="recipe-image">
+                    <img th:src="${recipe.imagePath}" th:alt="${recipe.title}"/>
                 </div>
                 <div class="recipe-meta">
                     <div class="recipe-meta-item">
