@@ -23,9 +23,6 @@ RUN apt-get update && apt-get install -y postgresql-client
 # Copy the packaged jar file from the build stage
 COPY --from=build /app/target/*.jar app.jar
 
-# Copy the database initialization script
-COPY init-db.sh /docker-entrypoint-initdb.d/
-
 # Expose the port the application runs on
 EXPOSE 8080
 
